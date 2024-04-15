@@ -1,12 +1,41 @@
 ﻿<Window x:Class="todoLIST.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:todoLIST"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
-    </Grid>
+        Title="MainWindow" Height="600" Width="920">
+    <Window.Style>
+        <Style TargetType="Window">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="#FF1E1E1E"/>
+            <Setter Property="BorderBrush" Value="#FF1E1E1E"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="WindowChrome.WindowChrome">
+                <Setter.Value>
+                    <WindowChrome CaptionHeight="30"
+                                  GlassFrameThickness="0"
+                                  CornerRadius="20"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Style>
+
+
+    <Border Background="#1E1E1E" >
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width ="200" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="32"/>
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <Button Content="X" HorizontalAlignment="Right" Height="25" Margin="0,5,5,0" VerticalAlignment="Top" Width="25" Click="CloseButtonClick" WindowChrome.IsHitTestVisibleInChrome="True" Grid.Column="1" Background="Transparent"/>
+            <Button Content="-" HorizontalAlignment="Right" Height="25" Margin="0,5,55,0" VerticalAlignment="Top" Width="25" Click="HideButtonClick" WindowChrome.IsHitTestVisibleInChrome="True" Grid.Column="1" Background="Transparent"/>
+            <Button Content="[]" HorizontalAlignment="Right" Height="25" Margin="0,5,30,0" VerticalAlignment="Top" Width="25" Click="FullScreanButtonClick" WindowChrome.IsHitTestVisibleInChrome="True" Grid.Column="1" Background="Transparent"/>
+
+        </Grid>
+    </Border>
+
 </Window>

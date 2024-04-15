@@ -20,9 +20,32 @@ namespace todoLIST
     /// </summary>
     public partial class MainWindow : Window
     {
+        bool flagFullScrean = false;
+
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void CloseButtonClick(object sender, RoutedEventArgs e)
+            => Close();
+
+        private void HideButtonClick(object sender, RoutedEventArgs e)
+            => this.WindowState = WindowState.Minimized;
+
+        private void FullScreanButtonClick(object sender, RoutedEventArgs e)
+        {
+            if (flagFullScrean == false)
+            {
+                this.WindowState = WindowState.Maximized;
+                flagFullScrean = true;
+            }
+
+            else
+            {
+                this.WindowState = WindowState.Normal;
+                flagFullScrean = false;
+            }
         }
     }
 }
