@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
@@ -29,8 +30,7 @@ namespace todoLIST
         TextBox textInCheckBox;
         CheckBox checkBox;
         DockPanel dockPanelAboveNewTask;
-
-        bool wrtieNotEnd = true;
+        Button Submit;
         
         bool flagFullScrean = false;
 
@@ -54,12 +54,16 @@ namespace todoLIST
             if (flagFullScrean == false)
             {
                 this.WindowState = WindowState.Maximized;
+
+                //ChekboxPanel.Margin = new Thickness(0, 0, 500, 0);
                 flagFullScrean = true;
             }
 
             else
             {
                 this.WindowState = WindowState.Normal;
+
+                //ChekboxPanel.Margin = new Thickness(0, 0, 200, 0);
                 flagFullScrean = false;
             }
         }
@@ -74,20 +78,10 @@ namespace todoLIST
         //Start of check boxes and their logic
         //
 
-        //private void AnimateButton(Button button)
-        //{
-        //    DoubleAnimation animation = new DoubleAnimation();
-        //    animation.From = button.Margin.Top; 
-        //    animation.To = 200; 
-        //    animation.Duration = TimeSpan.FromSeconds(1); 
-
-        //    button.BeginAnimation(Button.MarginProperty, animation);
-        //}
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             NewTask.Visibility = Visibility.Collapsed;
-            
 
             // creating entities
             checkBox = new CheckBox();
@@ -104,52 +98,51 @@ namespace todoLIST
                 Name = "PART_ContentHost"
             });
 
-
             template.VisualTree = border;
 
             textInCheckBox.Template = template;
-
-
-            //dockPanelAboveNewTask = new DockPanel();
-            //dockPanelAboveNewTask.LastChildFill = true;
 
             textInCheckBox.Text += "Wtrite Somesthing";
 
             textInCheckBox.KeyDown += textInCheckBox_KeyDown;
 
-            //dockPanelAboveNewTask.Children.Add(textInCheckBox);
+            Submit = new Button();
+            ControlTemplate template1 = new ControlTemplate(typeof(Button));
+            FrameworkElementFactory border1 = new FrameworkElementFactory(typeof(Border));
+            border1.SetValue(Border.CornerRadiusProperty, new CornerRadius(3));
+            border1.SetValue(Border.BackgroundProperty, new TemplateBindingExtension(Control.BackgroundProperty));
+            border1.AppendChild(new FrameworkElementFactory(typeof(ContentPresenter))
+            {
+                Name = "PART_ContentHost"
+            });
+            template1.VisualTree = border1;
 
-            //DockPanel.SetDock(textInCheckBox, Dock.Left);
+            Submit.Template = template1;
 
-            
+            Submit.Click += Submit_CLick;
+            TextPanel.Children.Add(Submit);
+
+            Submit.Content = "  Submit";
 
             TextPanel.Children.Add(textInCheckBox);
+
+            // Start Customization
+            Canvas.SetBottom(Submit, 0);
+            Canvas.SetLeft(Submit, 20);
+
+            Submit.Height = 20;
+            Submit.Width = 50;
+
+            Submit.Background = Brushes.Green;
+            Submit.Foreground = Brushes.White;
+           
+
+
             Canvas.SetLeft(textInCheckBox, 174);
             Canvas.SetTop(textInCheckBox, 0);
             textInCheckBox.Height = 67;
             textInCheckBox.Width = 428;
 
-            // enter TextBox in Check Box
-            //checkBox.Content = test;
-
-            // Handler for delition
-            checkBox.Checked += Is_Checked;
-
-            // Handler for writing tex
-            //textInCheckBox.KeyDown += textInCheckBox_KeyDown;
-
-            // For Creating new CheckBox
-            ChekboxPanel.Children.Add(checkBox);
-            
-            //ChekboxPanel.VerticalAlignment = VerticalAlignment.Top;
-
-            //ChekboxPanel.Children.Add(dockPanelAboveNewTask);
-
-            Button temp = new Button();
-
-
-
-            // Start Customization
             textInCheckBox.Background = new SolidColorBrush(Color.FromArgb(255, 38, 38, 38));
             
             checkBox.Margin = new Thickness(5);
@@ -167,36 +160,45 @@ namespace todoLIST
             // End Customization
         }
 
-        private void textInCheckBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter && TextPanel.Focusable == true)
-            {
-                wrtieNotEnd = false;
-
-
-                checkBox.Content = textInCheckBox.Text;
-                TextPanel.Children.Remove(textInCheckBox);
-
-                NewTask.Visibility = Visibility.Visible;
-
-                //Button clickedButton = NewTask;
-
-                // Применяем анимацию к этой кнопке
-                //AnimateButton(clickedButton);
-            }
-        }
-
         private void Is_Checked(object sender, RoutedEventArgs e)
         {
-            if (sender is CheckBox checkBox && checkBox.IsChecked == true && wrtieNotEnd == false)
+            if (sender is CheckBox checkBox && checkBox.IsChecked == true )
             {
                 Thread.Sleep(100);
                 ChekboxPanel.Children.Remove(checkBox);
-                wrtieNotEnd = true;
             }
+        }
+
+        private void textInCheckBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter && TextPanel.Focusable == true)
+                endText();
+        }
+
+        private void Submit_CLick(object sender, RoutedEventArgs e)
+            => endText();
+
+        private void endText()
+        {
+
+            checkBox.Content = textInCheckBox.Text;
+            TextPanel.Children.Remove(textInCheckBox);
+
+            checkBox.Checked += Is_Checked;
+
+            ChekboxPanel.Children.Add(checkBox);
+
+            TextPanel.Children.Remove(Submit);
+            NewTask.Visibility = Visibility.Visible;
+        }
+
+        private void ChekboxPanel_Scroll(object sender, System.Windows.Controls.Primitives.ScrollEventArgs e)
+        {
+
         }
         //
         //End of check boxes and their logic
         //
+
     }
 }
