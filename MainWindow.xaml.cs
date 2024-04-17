@@ -29,6 +29,9 @@ namespace todoLIST
         TextBox textInCheckBox;
         CheckBox checkBox;
         DockPanel dockPanelAboveNewTask;
+
+        bool wrtieNotEnd = true;
+        
         bool flagFullScrean = false;
 
         // Main
@@ -83,25 +86,48 @@ namespace todoLIST
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-
+            NewTask.Visibility = Visibility.Collapsed;
             
+
             // creating entities
             checkBox = new CheckBox();
             textInCheckBox = new TextBox();
 
-            dockPanelAboveNewTask = new DockPanel();
-            dockPanelAboveNewTask.LastChildFill = true;
+            ControlTemplate template = new ControlTemplate(typeof(TextBox));
+            FrameworkElementFactory border = new FrameworkElementFactory(typeof(Border));
+            border.SetValue(Border.CornerRadiusProperty, new CornerRadius(5));
+            border.SetValue(Border.BackgroundProperty, new TemplateBindingExtension(Control.BackgroundProperty));
+            border.SetValue(Border.BorderThicknessProperty, new TemplateBindingExtension(Control.BorderThicknessProperty));
+            border.SetValue(Border.BorderBrushProperty, new TemplateBindingExtension(Control.BorderBrushProperty));
+            border.AppendChild(new FrameworkElementFactory(typeof(ScrollViewer))
+            {
+                Name = "PART_ContentHost"
+            });
+
+
+            template.VisualTree = border;
+
+            textInCheckBox.Template = template;
+
+
+            //dockPanelAboveNewTask = new DockPanel();
+            //dockPanelAboveNewTask.LastChildFill = true;
 
             textInCheckBox.Text += "Wtrite Somesthing";
 
             textInCheckBox.KeyDown += textInCheckBox_KeyDown;
 
-            dockPanelAboveNewTask.Children.Add(textInCheckBox);
+            //dockPanelAboveNewTask.Children.Add(textInCheckBox);
 
-            DockPanel.SetDock(textInCheckBox, Dock.Left);
+            //DockPanel.SetDock(textInCheckBox, Dock.Left);
 
+            
 
-
+            TextPanel.Children.Add(textInCheckBox);
+            Canvas.SetLeft(textInCheckBox, 174);
+            Canvas.SetTop(textInCheckBox, 0);
+            textInCheckBox.Height = 67;
+            textInCheckBox.Width = 428;
 
             // enter TextBox in Check Box
             //checkBox.Content = test;
@@ -117,7 +143,7 @@ namespace todoLIST
             
             //ChekboxPanel.VerticalAlignment = VerticalAlignment.Top;
 
-            ChekboxPanel.Children.Add(dockPanelAboveNewTask);
+            //ChekboxPanel.Children.Add(dockPanelAboveNewTask);
 
             Button temp = new Button();
 
@@ -143,10 +169,15 @@ namespace todoLIST
 
         private void textInCheckBox_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter)
+            if (e.Key == Key.Enter && TextPanel.Focusable == true)
             {
+                wrtieNotEnd = false;
+
+
                 checkBox.Content = textInCheckBox.Text;
-                ChekboxPanel.Children.Remove(dockPanelAboveNewTask);
+                TextPanel.Children.Remove(textInCheckBox);
+
+                NewTask.Visibility = Visibility.Visible;
 
                 //Button clickedButton = NewTask;
 
@@ -157,10 +188,11 @@ namespace todoLIST
 
         private void Is_Checked(object sender, RoutedEventArgs e)
         {
-            if (sender is CheckBox checkBox && checkBox.IsChecked == true)
+            if (sender is CheckBox checkBox && checkBox.IsChecked == true && wrtieNotEnd == false)
             {
                 Thread.Sleep(100);
                 ChekboxPanel.Children.Remove(checkBox);
+                wrtieNotEnd = true;
             }
         }
         //
