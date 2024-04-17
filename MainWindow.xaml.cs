@@ -10,9 +10,11 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace todoLIST
 {
@@ -26,6 +28,7 @@ namespace todoLIST
         // Variables
         TextBox textInCheckBox;
         CheckBox checkBox;
+        DockPanel dockPanelAboveNewTask;
         bool flagFullScrean = false;
 
         // Main
@@ -67,23 +70,58 @@ namespace todoLIST
         //
         //Start of check boxes and their logic
         //
+
+        //private void AnimateButton(Button button)
+        //{
+        //    DoubleAnimation animation = new DoubleAnimation();
+        //    animation.From = button.Margin.Top; 
+        //    animation.To = 200; 
+        //    animation.Duration = TimeSpan.FromSeconds(1); 
+
+        //    button.BeginAnimation(Button.MarginProperty, animation);
+        //}
+
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+
+            
             // creating entities
             checkBox = new CheckBox();
             textInCheckBox = new TextBox();
 
+            dockPanelAboveNewTask = new DockPanel();
+            dockPanelAboveNewTask.LastChildFill = true;
+
+            textInCheckBox.Text += "Wtrite Somesthing";
+
+            textInCheckBox.KeyDown += textInCheckBox_KeyDown;
+
+            dockPanelAboveNewTask.Children.Add(textInCheckBox);
+
+            DockPanel.SetDock(textInCheckBox, Dock.Left);
+
+
+
+
             // enter TextBox in Check Box
-            checkBox.Content = textInCheckBox;
+            //checkBox.Content = test;
 
             // Handler for delition
             checkBox.Checked += Is_Checked;
 
             // Handler for writing tex
-            textInCheckBox.KeyDown += textInCheckBox_KeyDown;
+            //textInCheckBox.KeyDown += textInCheckBox_KeyDown;
 
             // For Creating new CheckBox
             ChekboxPanel.Children.Add(checkBox);
+            
+            //ChekboxPanel.VerticalAlignment = VerticalAlignment.Top;
+
+            ChekboxPanel.Children.Add(dockPanelAboveNewTask);
+
+            Button temp = new Button();
+
+
 
             // Start Customization
             textInCheckBox.Background = new SolidColorBrush(Color.FromArgb(255, 38, 38, 38));
@@ -106,7 +144,15 @@ namespace todoLIST
         private void textInCheckBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
+            {
                 checkBox.Content = textInCheckBox.Text;
+                ChekboxPanel.Children.Remove(dockPanelAboveNewTask);
+
+                //Button clickedButton = NewTask;
+
+                // Применяем анимацию к этой кнопке
+                //AnimateButton(clickedButton);
+            }
         }
 
         private void Is_Checked(object sender, RoutedEventArgs e)

@@ -17,6 +17,7 @@
 
     <Window.Resources>
         <ControlTemplate TargetType="Button" x:Key="testButtonTemplate2">
+
             <Border Name="RootElement">
                 <Border.Background>
                     <SolidColorBrush x:Name="BorderBrush" Color="Transparent"/>
@@ -60,19 +61,18 @@
             <StackPanel Grid.Row="1"
             x:Name="ChekboxPanel"
             Grid.Column="1"
-            Background="Transparent" Margin="50, 100, 10, 20"/>
-
-            <Button
-            Template="{StaticResource testButtonTemplate2}" 
-            Grid.Column="1" Grid.Row="1" Width="90" Height="25" Margin="10,58,558,462" 
+            Background="Transparent" Margin="98,80,90,40">
+                <Button x:Name="NewTask"
+            Template="{StaticResource testButtonTemplate2}" Width="90" Height="25" 
             Content="➕ New task"
-            Click="Button_Click" FontSize="15" FontWeight="Light" FontFamily="Aerial" Background="Transparent" Foreground="#808080" BorderThickness="0">
-            </Button>
+            Click="Button_Click" FontSize="15" FontWeight="Light" FontFamily="Aerial" Background="Transparent" Foreground="#808080" BorderThickness="0"/>
+            </StackPanel>
 
 
             <Button Template="{StaticResource testButtonTemplate2}"
                 HorizontalAlignment="Right" Height="25" Margin="0,5,5,0" VerticalAlignment="Top" Width="25" Click="CloseButtonClick" WindowChrome.IsHitTestVisibleInChrome="True" Grid.Column="1" Background="Transparent" BorderThickness="0">
                 <Image Source="x.png"/>
+
             </Button>
 
             <Button Template="{StaticResource testButtonTemplate2}"
@@ -84,6 +84,7 @@
                  HorizontalAlignment="Right" Height="25" Margin="0,5,30,0" VerticalAlignment="Top" Width="25" Click="FullScreanButtonClick" WindowChrome.IsHitTestVisibleInChrome="True" Grid.Column="1" Background="Transparent" BorderThickness="0">
                 <Image Source ="maximize.png"/>
             </Button>
+
         </Grid>
     </Border>
 
