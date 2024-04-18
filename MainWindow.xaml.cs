@@ -16,6 +16,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using static System.Net.Mime.MediaTypeNames;
+using todoLIST.Properties;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace todoLIST
 {
@@ -38,6 +41,21 @@ namespace todoLIST
         public MainWindow()
         {
             InitializeComponent();
+
+            string filePath = "uielements.json";
+
+            LoadData(filePath);
+            
+
+            this.Closed += Window_Closed;
+
+        }
+
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            string filePath = "uielements.json";
+            SaveData(filePath);
         }
 
         //
@@ -136,28 +154,27 @@ namespace todoLIST
             Submit.Background = Brushes.Green;
             Submit.Foreground = Brushes.White;
            
-
-
             Canvas.SetLeft(textInCheckBox, 174);
             Canvas.SetTop(textInCheckBox, 0);
+
             textInCheckBox.Height = 67;
             textInCheckBox.Width = 428;
 
             textInCheckBox.Background = new SolidColorBrush(Color.FromArgb(255, 38, 38, 38));
-            
-            checkBox.Margin = new Thickness(5);
-            
-            textInCheckBox.FontSize = 14;
-            checkBox.FontSize = 14;
-            
-            textInCheckBox.Foreground = Brushes.White;
-            checkBox.Foreground = Brushes.White;
-
-            textInCheckBox.FontFamily = new FontFamily("Lobster");
+            textInCheckBox.FontSize = 14;    
+            textInCheckBox.Foreground = Brushes.White;   
             textInCheckBox.FontFamily = new FontFamily("Aerial");
-
             textInCheckBox.BorderThickness = new Thickness(0, 0, 0, 0);
+
+            customizeCheckBox();
             // End Customization
+        }
+
+        private void customizeCheckBox()
+        {
+            checkBox.Margin = new Thickness(5);
+            checkBox.FontSize = 14;
+            checkBox.Foreground = Brushes.White;
         }
 
         private void Is_Checked(object sender, RoutedEventArgs e)
@@ -200,5 +217,49 @@ namespace todoLIST
         //End of check boxes and their logic
         //
 
+        public void SaveData(string filePath)
+        {
+            List<UIElementData> elementsData = new List<UIElementData>();
+
+            foreach (UIElement element in ChekboxPanel.Children)
+            {
+                if (element is CheckBox checkBox)
+                {
+                    elementsData.Add(new UIElementData
+                    {
+                        Text = checkBox.Content?.ToString(),
+                        IsChecked = checkBox.IsChecked
+                    });
+                }
+            }
+
+            string jsonString = JsonConvert.SerializeObject(elementsData);
+            File.WriteAllText(filePath, jsonString);
+        }
+
+        public void LoadData(string filePath)
+        {
+            if (!File.Exists(filePath))
+                return;
+
+            string jsonString = File.ReadAllText(filePath);
+            List<UIElementData> elementsData = JsonConvert.DeserializeObject<List<UIElementData>>(jsonString);
+
+            foreach (UIElementData data in elementsData)
+                if (!string.IsNullOrEmpty(data.Text))
+                    if (data.IsChecked.HasValue)
+                    {
+                        CheckBox checkBox = new CheckBox
+                        {
+                            Content = data.Text,
+                            IsChecked = data.IsChecked.Value,
+                            Margin = new Thickness(5),
+                            FontSize = 14,
+                            Foreground = Brushes.White
+                        };
+                        checkBox.Checked += Is_Checked;
+                        ChekboxPanel.Children.Add(checkBox);
+                    }
+        }
     }
 }
