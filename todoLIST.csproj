@@ -100,15 +100,24 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="logo.ico" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="maximize.png" />
     <Resource Include="minus.png" />
     <Resource Include="x.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="MainLogo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="newlogo.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="logo.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="svglogo.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="2svglogo.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
