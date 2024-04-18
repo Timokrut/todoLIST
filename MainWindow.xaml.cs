@@ -172,6 +172,8 @@ namespace todoLIST
 
         private void customizeCheckBox()
         {
+            Grid.SetRow(checkBox, 2);
+            Grid.SetColumn(checkBox, 1);
             checkBox.Margin = new Thickness(5);
             checkBox.FontSize = 14;
             checkBox.Foreground = Brushes.White;
