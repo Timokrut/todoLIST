@@ -19,6 +19,7 @@ using static System.Net.Mime.MediaTypeNames;
 using todoLIST.Properties;
 using System.IO;
 using Newtonsoft.Json;
+using System.Reflection;
 
 namespace todoLIST
 {
@@ -32,7 +33,7 @@ namespace todoLIST
         // Variables
         TextBox textInCheckBox;
         CheckBox checkBox;
-        DockPanel dockPanelAboveNewTask;
+        Rectangle lineUnderCheckBox;
         Button Submit;
         
         bool flagFullScrean = false;
@@ -104,6 +105,7 @@ namespace todoLIST
             // creating entities
             checkBox = new CheckBox();
             textInCheckBox = new TextBox();
+            lineUnderCheckBox = new Rectangle();
 
             ControlTemplate template = new ControlTemplate(typeof(TextBox));
             FrameworkElementFactory border = new FrameworkElementFactory(typeof(Border));
@@ -144,6 +146,12 @@ namespace todoLIST
 
             TextPanel.Children.Add(textInCheckBox);
 
+            lineUnderCheckBox.Height = 1;
+            lineUnderCheckBox.Width = 610;
+            lineUnderCheckBox.Stroke = Brushes.Gray;
+
+            
+
             // Start Customization
             Canvas.SetBottom(Submit, 0);
             Canvas.SetLeft(Submit, 20);
@@ -183,15 +191,31 @@ namespace todoLIST
         {
             if (sender is CheckBox checkBox && checkBox.IsChecked == true )
             {
+                int index = ChekboxPanel.Children.IndexOf(checkBox);
                 Thread.Sleep(100);
                 ChekboxPanel.Children.Remove(checkBox);
+                
+                ChekboxPanel.Children.RemoveAt(index);
             }
         }
 
         private void textInCheckBox_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter && TextPanel.Focusable == true)
-                endText();
+            if (e.Key == Key.Enter && (Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift)
+            {
+                var textBox = sender as TextBox;
+                if (textBox != null)
+                {
+                    int caretPosition = textBox.CaretIndex;
+                    textBox.Text = textBox.Text.Insert(caretPosition, "\n");
+                    textBox.CaretIndex = caretPosition + 1;
+                }
+                e.Handled = true;
+            }
+
+            if (e.Key == Key.Enter && (Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.None)
+                if (TextPanel.Focusable)
+                    endText();
         }
 
         private void Submit_CLick(object sender, RoutedEventArgs e)
@@ -206,6 +230,8 @@ namespace todoLIST
             checkBox.Checked += Is_Checked;
 
             ChekboxPanel.Children.Add(checkBox);
+
+            ChekboxPanel.Children.Add(lineUnderCheckBox);
 
             TextPanel.Children.Remove(Submit);
             NewTask.Visibility = Visibility.Visible;
@@ -233,6 +259,12 @@ namespace todoLIST
                         IsChecked = checkBox.IsChecked
                     });
                 }
+
+                //if (element is Rectangle rectangle)
+                //{
+
+
+                //}
             }
 
             string jsonString = JsonConvert.SerializeObject(elementsData);
@@ -243,6 +275,8 @@ namespace todoLIST
         {
             if (!File.Exists(filePath))
                 return;
+
+           
 
             string jsonString = File.ReadAllText(filePath);
             List<UIElementData> elementsData = JsonConvert.DeserializeObject<List<UIElementData>>(jsonString);
@@ -261,6 +295,13 @@ namespace todoLIST
                         };
                         checkBox.Checked += Is_Checked;
                         ChekboxPanel.Children.Add(checkBox);
+                        lineUnderCheckBox = new Rectangle
+                        {
+                            Height = 1,
+                            Width = 610,
+                            Stroke = Brushes.Gray
+                        };
+                        ChekboxPanel.Children.Add(lineUnderCheckBox);
                     }
         }
     }
