@@ -35,7 +35,8 @@ namespace todoLIST
         CheckBox checkBox;
         Rectangle lineUnderCheckBox;
         Button Submit;
-        
+        TextBlock textBlock;
+
         bool flagFullScrean = false;
 
         // Main
@@ -187,14 +188,62 @@ namespace todoLIST
             checkBox.Foreground = Brushes.White;
         }
 
-        private void Is_Checked(object sender, RoutedEventArgs e)
+        private async void Is_CheckedAsync(object sender, RoutedEventArgs e)
         {
             if (sender is CheckBox checkBox && checkBox.IsChecked == true )
             {
+                textBlock = new TextBlock();
+                textBlock.Text = (string)checkBox.Content;
+                textBlock.TextDecorations = TextDecorations.Strikethrough;
+                textBlock.Foreground = Brushes.Black;
+                textBlock.FontSize = 15;
+                checkBox.Content = textBlock;
+
+                await Task.Delay(1000);
                 int index = ChekboxPanel.Children.IndexOf(checkBox);
-                Thread.Sleep(100);
-                ChekboxPanel.Children.Remove(checkBox);
+                DoubleAnimation widthAnimation = new DoubleAnimation
+                {
+                    From = checkBox.ActualWidth,
+                    To = 0,
+                    Duration = TimeSpan.FromSeconds(0.5),
+                    FillBehavior = FillBehavior.Stop
+                };
+
+                DoubleAnimation heightAnimation = new DoubleAnimation
+                {
+                    From = checkBox.ActualHeight,
+                    To = 0,
+                    Duration = TimeSpan.FromSeconds(0.5),
+                    FillBehavior = FillBehavior.Stop
+                };
+
+                DoubleAnimation opacityAnimation = new DoubleAnimation
+                {
+                    From = 1,
+                    To = 0,
+                    Duration = TimeSpan.FromSeconds(0.5),
+                    FillBehavior = FillBehavior.Stop
+                };
+
+                Storyboard storyboard = new Storyboard();
+                storyboard.Children.Add(widthAnimation);
+                storyboard.Children.Add(heightAnimation);
+                storyboard.Children.Add(opacityAnimation);
+
+                Storyboard.SetTarget(widthAnimation, checkBox);
+                Storyboard.SetTarget(heightAnimation, checkBox);
+                Storyboard.SetTarget(opacityAnimation, checkBox);
+
+                Storyboard.SetTargetProperty(widthAnimation, new PropertyPath(FrameworkElement.WidthProperty));
+                Storyboard.SetTargetProperty(heightAnimation, new PropertyPath(FrameworkElement.HeightProperty));
+                Storyboard.SetTargetProperty(opacityAnimation, new PropertyPath(UIElement.OpacityProperty));
+
+                storyboard.Begin(checkBox);
                 
+
+                await Task.Delay(490);
+                ChekboxPanel.Children.Remove(checkBox);
+
                 ChekboxPanel.Children.RemoveAt(index);
             }
         }
@@ -223,11 +272,11 @@ namespace todoLIST
 
         private void endText()
         {
-
+            
             checkBox.Content = textInCheckBox.Text;
             TextPanel.Children.Remove(textInCheckBox);
 
-            checkBox.Checked += Is_Checked;
+            checkBox.Checked += Is_CheckedAsync;
 
             ChekboxPanel.Children.Add(checkBox);
 
@@ -259,12 +308,6 @@ namespace todoLIST
                         IsChecked = checkBox.IsChecked
                     });
                 }
-
-                //if (element is Rectangle rectangle)
-                //{
-
-
-                //}
             }
 
             string jsonString = JsonConvert.SerializeObject(elementsData);
@@ -293,7 +336,7 @@ namespace todoLIST
                             FontSize = 14,
                             Foreground = Brushes.White
                         };
-                        checkBox.Checked += Is_Checked;
+                        checkBox.Checked += Is_CheckedAsync;
                         ChekboxPanel.Children.Add(checkBox);
                         lineUnderCheckBox = new Rectangle
                         {
