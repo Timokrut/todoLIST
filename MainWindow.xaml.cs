@@ -49,8 +49,19 @@ namespace todoLIST
             InitializeComponent();
 
             string filePath = "uielements.json";
-            
+            ControlTemplate template1 = new ControlTemplate(typeof(Button));
+            FrameworkElementFactory border1 = new FrameworkElementFactory(typeof(Border));
+            border1.SetValue(Border.CornerRadiusProperty, new CornerRadius(10));
+            border1.SetValue(Border.BackgroundProperty, new TemplateBindingExtension(Control.BackgroundProperty));
+            border1.AppendChild(new FrameworkElementFactory(typeof(ContentPresenter))
+            {
+                Name = "PART_ContentHost"
+            });
+            template1.VisualTree = border1;
 
+            Completed.Content = " Completed";
+            Completed.Template = template1;
+            Completed.Background = new SolidColorBrush(Color.FromArgb(200, 123, 124, 129));
             LoadData(filePath);
             
 
@@ -70,10 +81,11 @@ namespace todoLIST
                     {
                         TextBlock textBlock = new TextBlock
                         {
-                            Background = Brushes.Red,
                             VerticalAlignment = VerticalAlignment.Top,
                             HorizontalAlignment = HorizontalAlignment.Center,
-                            Text = data.Text
+                            Text = data.Text,
+                            Foreground = Brushes.White,
+                            FontSize = 14,
                         };
                         canvas.Children.Add(textBlock);
                     }
@@ -147,7 +159,6 @@ namespace todoLIST
             });
 
             template.VisualTree = border;
-
             textInCheckBox.Template = template;
 
             textInCheckBox.Text += "Wtrite Somesthing";
@@ -172,7 +183,7 @@ namespace todoLIST
             Submit.Click += Submit_CLick;
             TextPanel.Children.Add(Submit);
 
-            Submit.Content = "  Submit";
+            Submit.Content = "  Submit";    
 
             TextPanel.Children.Add(textInCheckBox);
 
@@ -515,7 +526,7 @@ namespace todoLIST
             canvas.Margin = new Thickness(0, 50, 0, 0);
 
             textBlock = new TextBlock();
-            textBlock.Background = Brushes.Red;
+            textBlock.Foreground = Brushes.White;
 
             textBlock.VerticalAlignment = VerticalAlignment.Top;
             textBlock.HorizontalAlignment = HorizontalAlignment.Center;
