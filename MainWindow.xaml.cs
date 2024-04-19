@@ -268,7 +268,7 @@ namespace todoLIST
 
                 await Task.Delay(1000);
                 int index = ChekboxPanel.Children.IndexOf(checkBox);
-                ChekboxPanel.Children.RemoveAt(index);
+                ChekboxPanel.Children.RemoveAt(index+1);
                 DoubleAnimation widthAnimation = new DoubleAnimation
                 {
                     From = checkBox.ActualWidth,
