@@ -20,6 +20,7 @@ using todoLIST.Properties;
 using System.IO;
 using Newtonsoft.Json;
 using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace todoLIST
 {
@@ -36,8 +37,11 @@ namespace todoLIST
         Rectangle lineUnderCheckBox;
         Button Submit;
         TextBlock textBlock;
+        Canvas canvas;
 
         bool flagFullScrean = false;
+
+        string str;
 
         // Main
         public MainWindow()
@@ -45,19 +49,43 @@ namespace todoLIST
             InitializeComponent();
 
             string filePath = "uielements.json";
+            
 
             LoadData(filePath);
             
 
             this.Closed += Window_Closed;
-
         }
 
+        private void LoadCanvasData(string filePathC)
+        {
+            if (File.Exists(filePathC))
+            {
+                string jsonString = File.ReadAllText(filePathC);
+                List<UICanvasData> elementCData = JsonConvert.DeserializeObject<List<UICanvasData>>(jsonString);
+
+                foreach (UICanvasData data in elementCData)
+                {
+                    if (!string.IsNullOrEmpty(data.Text) && data.Text.Length > 0)
+                    {
+                        TextBlock textBlock = new TextBlock
+                        {
+                            Background = Brushes.Red,
+                            VerticalAlignment = VerticalAlignment.Top,
+                            HorizontalAlignment = HorizontalAlignment.Center,
+                            Text = data.Text
+                        };
+                        canvas.Children.Add(textBlock);
+                    }
+                }
+            }
+        }
 
         private void Window_Closed(object sender, EventArgs e)
         {
             string filePath = "uielements.json";
-            SaveData(filePath);
+            string filePathC = "uielementC.json";
+            SaveData(filePath, filePathC);
         }
 
         //
@@ -98,7 +126,6 @@ namespace todoLIST
         //Start of check boxes and their logic
         //
 
-
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             NewTask.Visibility = Visibility.Collapsed;
@@ -124,8 +151,10 @@ namespace todoLIST
             textInCheckBox.Template = template;
 
             textInCheckBox.Text += "Wtrite Somesthing";
+            
 
             textInCheckBox.KeyDown += textInCheckBox_KeyDown;
+            textInCheckBox.GotFocus += Focus;
 
             Submit = new Button();
             ControlTemplate template1 = new ControlTemplate(typeof(Button));
@@ -147,11 +176,44 @@ namespace todoLIST
 
             TextPanel.Children.Add(textInCheckBox);
 
+            DoubleAnimation animationTextInCheckBox = new DoubleAnimation
+            {
+                From = 0,
+                To = 1,
+                Duration = TimeSpan.FromSeconds(0.3),
+                AutoReverse = false,
+                FillBehavior = FillBehavior.HoldEnd
+            };
+
+            Storyboard myStoryboard = new Storyboard();
+            myStoryboard.Children.Add(animationTextInCheckBox);
+            Storyboard.SetTarget(animationTextInCheckBox, textInCheckBox);
+            Storyboard.SetTargetProperty(animationTextInCheckBox, new PropertyPath(Rectangle.OpacityProperty));
+
+            myStoryboard.Begin(textInCheckBox);
+
+            DoubleAnimation animationButton = new DoubleAnimation
+            {
+                From = 0,
+                To = 1,
+                Duration = TimeSpan.FromSeconds(0.3),
+                AutoReverse = false,
+                FillBehavior = FillBehavior.HoldEnd
+            };
+
+            Storyboard buttonStoryboard = new Storyboard();
+            buttonStoryboard.Children.Add(animationButton);
+            Storyboard.SetTarget(animationButton, Submit);
+            Storyboard.SetTargetProperty(animationButton, new PropertyPath(UIElement.OpacityProperty));
+
+            buttonStoryboard.Begin(Submit);
+
+
             lineUnderCheckBox.Height = 1;
             lineUnderCheckBox.Width = 610;
             lineUnderCheckBox.Stroke = Brushes.Gray;
-
-            
+            lineUnderCheckBox.HorizontalAlignment = HorizontalAlignment.Center;
+            lineUnderCheckBox.VerticalAlignment = VerticalAlignment.Center;
 
             // Start Customization
             Canvas.SetBottom(Submit, 0);
@@ -170,8 +232,8 @@ namespace todoLIST
             textInCheckBox.Width = 428;
 
             textInCheckBox.Background = new SolidColorBrush(Color.FromArgb(255, 38, 38, 38));
-            textInCheckBox.FontSize = 14;    
-            textInCheckBox.Foreground = Brushes.White;   
+            textInCheckBox.FontSize = 14;
+            textInCheckBox.Foreground = new SolidColorBrush(Color.FromRgb(94, 94, 94));
             textInCheckBox.FontFamily = new FontFamily("Aerial");
             textInCheckBox.BorderThickness = new Thickness(0, 0, 0, 0);
 
@@ -192,6 +254,11 @@ namespace todoLIST
         {
             if (sender is CheckBox checkBox && checkBox.IsChecked == true )
             {
+                checkBox.IsEnabled = false;
+
+                str = (string)checkBox.Content;
+
+
                 textBlock = new TextBlock();
                 textBlock.Text = (string)checkBox.Content;
                 textBlock.TextDecorations = TextDecorations.Strikethrough;
@@ -201,6 +268,7 @@ namespace todoLIST
 
                 await Task.Delay(1000);
                 int index = ChekboxPanel.Children.IndexOf(checkBox);
+                ChekboxPanel.Children.RemoveAt(index);
                 DoubleAnimation widthAnimation = new DoubleAnimation
                 {
                     From = checkBox.ActualWidth,
@@ -242,10 +310,17 @@ namespace todoLIST
                 
 
                 await Task.Delay(490);
-                ChekboxPanel.Children.Remove(checkBox);
 
-                ChekboxPanel.Children.RemoveAt(index);
+                ChekboxPanel.Children.Remove(checkBox);
+ 
             }
+        }
+
+        private void Focus(object sender, RoutedEventArgs e)
+        {
+            textInCheckBox.Text = "";
+
+            textInCheckBox.Foreground = Brushes.White;
         }
 
         private void textInCheckBox_KeyDown(object sender, KeyEventArgs e)
@@ -259,6 +334,7 @@ namespace todoLIST
                     textBox.Text = textBox.Text.Insert(caretPosition, "\n");
                     textBox.CaretIndex = caretPosition + 1;
                 }
+                
                 e.Handled = true;
             }
 
@@ -272,7 +348,18 @@ namespace todoLIST
 
         private void endText()
         {
+            if (textInCheckBox.Text.Length == 0)
+            {
+                textInCheckBox.Text = "Looks like you forget to write something smart. Try again!";
+                return;
+            }
+
+            string str = textInCheckBox.Text.Trim();
+
+            textInCheckBox.Text = str;
+
             
+
             checkBox.Content = textInCheckBox.Text;
             TextPanel.Children.Remove(textInCheckBox);
 
@@ -286,15 +373,11 @@ namespace todoLIST
             NewTask.Visibility = Visibility.Visible;
         }
 
-        private void ChekboxPanel_Scroll(object sender, System.Windows.Controls.Primitives.ScrollEventArgs e)
-        {
-
-        }
         //
         //End of check boxes and their logic
         //
 
-        public void SaveData(string filePath)
+        public void SaveData(string filePath, string filePathC)
         {
             List<UIElementData> elementsData = new List<UIElementData>();
 
@@ -305,13 +388,27 @@ namespace todoLIST
                     elementsData.Add(new UIElementData
                     {
                         Text = checkBox.Content?.ToString(),
-                        IsChecked = checkBox.IsChecked
+                        IsChecked = checkBox.IsChecked,
                     });
                 }
             }
 
+            List<UICanvasData> elementCData = new List<UICanvasData>();
+
+            foreach (UIElement element in canvas.Children)
+                if (element is TextBlock textBlock)
+                {
+                    elementCData.Add(new UICanvasData
+                    {
+                        Text = textBlock.Text?.ToString(),
+                    });
+                }
+
+            string jsonStringC = JsonConvert.SerializeObject(elementCData);
             string jsonString = JsonConvert.SerializeObject(elementsData);
             File.WriteAllText(filePath, jsonString);
+
+            File.WriteAllText(filePathC, jsonStringC);
         }
 
         public void LoadData(string filePath)
@@ -319,13 +416,14 @@ namespace todoLIST
             if (!File.Exists(filePath))
                 return;
 
-           
+            
 
             string jsonString = File.ReadAllText(filePath);
             List<UIElementData> elementsData = JsonConvert.DeserializeObject<List<UIElementData>>(jsonString);
 
             foreach (UIElementData data in elementsData)
                 if (!string.IsNullOrEmpty(data.Text))
+                {
                     if (data.IsChecked.HasValue)
                     {
                         CheckBox checkBox = new CheckBox
@@ -336,16 +434,95 @@ namespace todoLIST
                             FontSize = 14,
                             Foreground = Brushes.White
                         };
+                        
                         checkBox.Checked += Is_CheckedAsync;
                         ChekboxPanel.Children.Add(checkBox);
                         lineUnderCheckBox = new Rectangle
                         {
                             Height = 1,
                             Width = 610,
-                            Stroke = Brushes.Gray
+                            Stroke = Brushes.Gray,
+                            HorizontalAlignment = HorizontalAlignment.Center,
+                            VerticalAlignment = VerticalAlignment.Center
                         };
                         ChekboxPanel.Children.Add(lineUnderCheckBox);
                     }
+                }
+        }
+
+        bool flag = false;
+        bool load_C = false;
+
+
+        private void test(object sender, RoutedEventArgs e)
+        {
+            string filePathC = "uielementC.json";
+            Button button1 = (Button)sender;
+            
+            DependencyObject parent = button1.Parent;
+            Border border = new Border();
+
+
+            if (flag == false)
+            {
+                Grid.SetColumn(border, 1);
+                Grid.SetRow(border, 1);
+                Grid.SetRowSpan(border, 2);
+
+                border.Background = new SolidColorBrush(Color.FromRgb(30, 30, 30));
+
+
+                Button button = sender as Button;
+                if (button != null)
+                {
+
+
+
+                    while (parent != null && !(parent is Grid))
+                        parent = VisualTreeHelper.GetParent(parent);
+
+                    if (parent is Grid parentGrid)
+                        parentGrid.Children.Add(border);
+
+                    else
+                        Console.WriteLine("Grid не найден");
+                }
+
+                flag = true;
+
+            }
+
+            else
+            {
+                if (parent is Grid parentGrid)
+                    parentGrid.Children.RemoveAt(12);//last border
+
+                flag = false;
+            }
+
+            canvas = new Canvas();
+            border.Child = canvas;
+
+            if (load_C == false)
+            {
+                LoadCanvasData(filePathC);
+                load_C = true;
+            }
+
+            canvas.VerticalAlignment = VerticalAlignment.Top;
+
+            canvas.Width = 610;
+            canvas.Margin = new Thickness(0, 50, 0, 0);
+
+            textBlock = new TextBlock();
+            textBlock.Background = Brushes.Red;
+
+            textBlock.VerticalAlignment = VerticalAlignment.Top;
+            textBlock.HorizontalAlignment = HorizontalAlignment.Center;
+
+            textBlock.Text = str;
+
+            canvas.Children.Add(textBlock);
         }
     }
 }

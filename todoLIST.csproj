@@ -108,16 +108,10 @@
     <Resource Include="MainLogo.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="newlogo.ico" />
+    <Resource Include="logoV1.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="logo.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="svglogo.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="2svglogo.ico" />
+    <Resource Include="logoV2.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

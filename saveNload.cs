@@ -15,4 +15,9 @@ namespace todoLIST
         public string Text { get; set; }
         public bool? IsChecked { get; set; }
     }
+
+    public class UICanvasData
+    { 
+        public string Text { get; set; } 
+    }
 }
