@@ -68,30 +68,7 @@ namespace todoLIST
             this.Closed += Window_Closed;
         }
 
-        private void LoadCanvasData(string filePathC)
-        {
-            if (File.Exists(filePathC))
-            {
-                string jsonString = File.ReadAllText(filePathC);
-                List<UICanvasData> elementCData = JsonConvert.DeserializeObject<List<UICanvasData>>(jsonString);
-
-                foreach (UICanvasData data in elementCData)
-                {
-                    if (!string.IsNullOrEmpty(data.Text) && data.Text.Length > 0)
-                    {
-                        TextBlock textBlock = new TextBlock
-                        {
-                            VerticalAlignment = VerticalAlignment.Top,
-                            HorizontalAlignment = HorizontalAlignment.Center,
-                            Text = data.Text,
-                            Foreground = Brushes.White,
-                            FontSize = 14,
-                        };
-                        canvas.Children.Add(textBlock);
-                    }
-                }
-            }
-        }
+        
 
         private void Window_Closed(object sender, EventArgs e)
         {
@@ -388,38 +365,52 @@ namespace todoLIST
         //End of check boxes and their logic
         //
 
+
+
         public void SaveData(string filePath, string filePathC)
         {
-            List<UIElementData> elementsData = new List<UIElementData>();
+           
 
-            foreach (UIElement element in ChekboxPanel.Children)
-            {
-                if (element is CheckBox checkBox)
-                {
-                    elementsData.Add(new UIElementData
+           
+                
+                    List<UIElementData> elementsData = new List<UIElementData>();
+
+                    foreach (UIElement element in ChekboxPanel.Children)
                     {
-                        Text = checkBox.Content?.ToString(),
-                        IsChecked = checkBox.IsChecked,
-                    });
-                }
-            }
+                        if (element is CheckBox checkBox)
+                        {
+                            elementsData.Add(new UIElementData
+                            {
+                                Text = checkBox.Content?.ToString(),
+                                IsChecked = checkBox.IsChecked,
+                            });
+                        }
+                    }
 
-            List<UICanvasData> elementCData = new List<UICanvasData>();
+                    string jsonString = JsonConvert.SerializeObject(elementsData);
+                    File.WriteAllText(filePath, jsonString);
 
-            foreach (UIElement element in canvas.Children)
-                if (element is TextBlock textBlock)
-                {
-                    elementCData.Add(new UICanvasData
-                    {
-                        Text = textBlock.Text?.ToString(),
-                    });
-                }
 
-            string jsonStringC = JsonConvert.SerializeObject(elementCData);
-            string jsonString = JsonConvert.SerializeObject(elementsData);
-            File.WriteAllText(filePath, jsonString);
+            
 
-            File.WriteAllText(filePathC, jsonStringC);
+                    List<UICanvasData> elementCData = new List<UICanvasData>();
+
+                    foreach (UIElement element in canvas.Children)
+                        if (element is TextBlock textBlock)
+                        {
+                            elementCData.Add(new UICanvasData
+                            {
+                                Text = textBlock.Text?.ToString(),
+                            });
+                        }
+                    string jsonStringC = JsonConvert.SerializeObject(elementCData);
+                    File.WriteAllText(filePathC, jsonStringC);
+
+
+            
+            
+
+            
         }
 
         public void LoadData(string filePath)
@@ -461,11 +452,36 @@ namespace todoLIST
                 }
         }
 
+        private void LoadCanvasData(string filePathC)
+        {
+            if (File.Exists(filePathC))
+            {
+                string jsonString = File.ReadAllText(filePathC);
+                List<UICanvasData> elementCData = JsonConvert.DeserializeObject<List<UICanvasData>>(jsonString);
+
+                foreach (UICanvasData data in elementCData)
+                {
+                    if (!string.IsNullOrEmpty(data.Text) && data.Text.Length > 0)
+                    {
+                        TextBlock textBlock = new TextBlock
+                        {
+                            VerticalAlignment = VerticalAlignment.Top,
+                            HorizontalAlignment = HorizontalAlignment.Center,
+                            Text = data.Text,
+                            Foreground = Brushes.White,
+                            FontSize = 14,
+                        };
+                        canvas.Children.Add(textBlock);
+                    }
+                }
+            }
+        }
+
         bool flag = false;
         bool load_C = false;
 
 
-        private void test(object sender, RoutedEventArgs e)
+        private async void test(object sender, RoutedEventArgs e)
         {
             string filePathC = "uielementC.json";
             Button button1 = (Button)sender;
@@ -492,8 +508,27 @@ namespace todoLIST
                     while (parent != null && !(parent is Grid))
                         parent = VisualTreeHelper.GetParent(parent);
 
-                    if (parent is Grid parentGrid)
+                    if (parent is Grid parentGrid)// я закочил оцени красоту 
+                    {
+                        DoubleAnimation animationButton = new DoubleAnimation
+                        {
+                            From = 0,
+                            To = 1,
+                            Duration = TimeSpan.FromSeconds(0.15),
+                            AutoReverse = false,
+                            FillBehavior = FillBehavior.HoldEnd
+                        };
+
+                        Storyboard buttonStoryboard = new Storyboard();
+                        buttonStoryboard.Children.Add(animationButton);
+                        Storyboard.SetTarget(animationButton, border);
+                        Storyboard.SetTargetProperty(animationButton, new PropertyPath(UIElement.OpacityProperty)); 
+
+                        buttonStoryboard.Begin(border);
+
+
                         parentGrid.Children.Add(border);
+                    }
 
                     else
                         Console.WriteLine("Grid не найден");
@@ -506,9 +541,37 @@ namespace todoLIST
             else
             {
                 if (parent is Grid parentGrid)
+                {
+                   //DoubleAnimation animation = new DoubleAnimation
+                   // {
+                   //     From = border.Opacity,
+                   //     To = 0,
+                   //     Duration = TimeSpan.FromSeconds(0.3),
+                   //     AutoReverse = false,
+                   //     FillBehavior = FillBehavior.HoldEnd,
+                   //     EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseInOut }
+                   // };
+
+                   // // Создайте Storyboard и добавьте анимацию
+                   // Storyboard storyboard = new Storyboard();
+                   // storyboard.Children.Add(animation);
+                   // Storyboard.SetTarget(animation, border);
+                   // Storyboard.SetTargetProperty(animation, new PropertyPath(UIElement.OpacityProperty));
+
+                   // // Запустите анимацию
+                   // storyboard.Begin(border);
+
+                   // await Task.Delay(1000);
+
                     parentGrid.Children.RemoveAt(12);//last border
 
+                    
+
+                }
+
                 flag = false;
+
+                return;
             }
 
             canvas = new Canvas();
