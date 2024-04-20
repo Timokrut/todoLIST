@@ -261,7 +261,7 @@
         </Style>
     </Window.Resources>
 
-            <Border Background="#1E1E1E">
+            <Border x:Name="mainBorder" Background="#1E1E1E">
                 <Grid x:Name = "parentGrid">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width ="200" />
@@ -300,7 +300,8 @@
                        HorizontalAlignment="Center"
                        VerticalAlignment="Center"
                        Grid.Row="1"
-                       CornerRadius="8" >
+                       CornerRadius="8" 
+                       x:Name="br">
                         <Canvas 
                         x:Name="TextPanel" 
                         Focusable="True" 
@@ -390,7 +391,8 @@
                         Grid.Row="1" 
                         Stroke="Gray" 
                         VerticalAlignment="Bottom" 
-                        Width="610"/>
+                        Width="610"
+                        x:Name="mainPalka"/>
                     </Border>
 
                     <Image Source = "MainLogo.png" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,40,0,0" Height="200" Width="200" Grid.ColumnSpan="2" Grid.RowSpan="2"/>

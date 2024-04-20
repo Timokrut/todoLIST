@@ -542,28 +542,37 @@ namespace todoLIST
             {
                 if (parent is Grid parentGrid)
                 {
-                   //DoubleAnimation animation = new DoubleAnimation
-                   // {
-                   //     From = border.Opacity,
-                   //     To = 0,
-                   //     Duration = TimeSpan.FromSeconds(0.3),
-                   //     AutoReverse = false,
-                   //     FillBehavior = FillBehavior.HoldEnd,
-                   //     EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseInOut }
-                   // };
-
-                   // // Создайте Storyboard и добавьте анимацию
-                   // Storyboard storyboard = new Storyboard();
-                   // storyboard.Children.Add(animation);
-                   // Storyboard.SetTarget(animation, border);
-                   // Storyboard.SetTargetProperty(animation, new PropertyPath(UIElement.OpacityProperty));
-
-                   // // Запустите анимацию
-                   // storyboard.Begin(border);
-
-                   // await Task.Delay(1000);
-
                     parentGrid.Children.RemoveAt(12);//last border
+
+                    DoubleAnimation animation = new DoubleAnimation
+                    {
+                        From = 0,
+                        To = 1,
+                        Duration = TimeSpan.FromSeconds(0.3),
+                        AutoReverse = false,
+                        FillBehavior = FillBehavior.HoldEnd,
+                        EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseInOut }
+                    };
+
+                    // Создайте Storyboard и добавьте анимацию
+                    Storyboard storyboard = new Storyboard();
+                    storyboard.Children.Add(animation);
+                    Storyboard.SetTarget(animation, br);
+                    Storyboard.SetTarget(animation, ChekboxPanel);
+                    //Storyboard.SetTarget(animation, mainPalka);
+                    Storyboard.SetTargetProperty(animation, new PropertyPath(UIElement.OpacityProperty));
+
+
+                    // Запустите анимацию
+                    storyboard.Begin(ChekboxPanel);
+                    //await Task.Delay(500);
+                    //storyboard.Begin(mainPalka);
+                    //await Task.Delay(80);
+                    //storyboard.Begin(br);
+
+                    //await Task.Delay(1000);
+
+                    
 
                     
 
