@@ -22,6 +22,7 @@ using Newtonsoft.Json;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Media.TextFormatting;
+using System.CodeDom;
 
 namespace todoLIST
 {
@@ -38,8 +39,8 @@ namespace todoLIST
         Rectangle lineUnderCheckBox;
         Button Submit;
         TextBlock textBlock;
-        Canvas canvas;
-        
+        Canvas canvas = new Canvas();
+        string filePathC = "uielementC.json";
         bool flagFullScrean = false;
 
         string str;
@@ -64,12 +65,18 @@ namespace todoLIST
             Completed.Template = template1;
             Completed.Background = new SolidColorBrush(Color.FromArgb(200, 123, 124, 129));
             LoadData(filePath);
-            
+
+            //canvas.Loaded += Canvas_Loaded;
 
             this.Closed += Window_Closed;
         }
 
-        
+        private void Canvas_Loaded(object sender, RoutedEventArgs e)
+        {
+            string filePathC = "uielementC.json";
+            LoadCanvasData(filePathC); // Вызываем LoadCanvasData после загрузки Canvas
+        }
+
 
         private void Window_Closed(object sender, EventArgs e)
         {
@@ -144,6 +151,8 @@ namespace todoLIST
 
             textInCheckBox.KeyDown += textInCheckBox_KeyDown;
             textInCheckBox.GotFocus += Focus;
+            
+            
 
             Submit = new Button();
             ControlTemplate template1 = new ControlTemplate(typeof(Button));
@@ -248,6 +257,13 @@ namespace todoLIST
 
                 str = (string)checkBox.Content;
 
+
+                newTextBlock = AddNewTextBlock(str);
+                if (newTextBlock != null)
+                    canvas.Children.Add(newTextBlock);
+
+                autoSave(filePathC);
+
                 textBlock = new TextBlock();
                 textBlock.Text = (string)checkBox.Content;
                 textBlock.TextDecorations = TextDecorations.Strikethrough;
@@ -301,12 +317,17 @@ namespace todoLIST
                 await Task.Delay(490);
 
                 ChekboxPanel.Children.Remove(checkBox);
- 
+
+                
+
+                
             }
         }
 
         private void Focus(object sender, RoutedEventArgs e)
         {
+            textInCheckBox.SpellCheck.IsEnabled = true;
+
             textInCheckBox.Text = "";
 
             textInCheckBox.Foreground = Brushes.White;
@@ -436,6 +457,7 @@ namespace todoLIST
                     }
                 }
         }
+        double Gap_Between_Completed_Tasks;
 
         private void LoadCanvasData(string filePathC)
         {
@@ -444,19 +466,19 @@ namespace todoLIST
                 string jsonString = File.ReadAllText(filePathC);
                 List<UICanvasData> elementCData = JsonConvert.DeserializeObject<List<UICanvasData>>(jsonString);
                 
-                double Gap_Between_Completed_Tasks = 0;
+                Gap_Between_Completed_Tasks = 0;
                 foreach (UICanvasData data in elementCData)
                 {
                     if (!string.IsNullOrEmpty(data.Text) && data.Text.Length > 0)
                     {
-                        TextBlock textBlock = new TextBlock
-                        {
-                            VerticalAlignment = VerticalAlignment.Top,
-                            HorizontalAlignment = HorizontalAlignment.Center,
-                            Text = data.Text,
-                            Foreground = Brushes.White,
-                            FontSize = 14,
-                        };
+                        TextBlock textBlock = new TextBlock();
+                        textBlock.VerticalAlignment = VerticalAlignment.Top;
+                        textBlock.HorizontalAlignment = HorizontalAlignment.Center;
+                        textBlock.Text = data.Text;
+                        textBlock.Foreground = Brushes.White;
+                        textBlock.FontSize = 14;
+                        textBlock.Height = 14;
+
 
                         textBlock.Loaded += (sender, e) =>
                         {
@@ -464,15 +486,31 @@ namespace todoLIST
                             Gap_Between_Completed_Tasks += textBlock.ActualHeight + 23;
                             add_gap_rect(Gap_Between_Completed_Tasks);
                         };
-
                         canvas.Children.Add(textBlock);
                     }
                 }
             }
         }
 
+        private void autoSave(string filePathC)
+        {
+            List<UICanvasData> elementCData = new List<UICanvasData>();
+
+            foreach (UIElement element in canvas.Children)
+                if (element is TextBlock textBlock)
+                {
+                    elementCData.Add(new UICanvasData
+                    {
+                        Text = textBlock.Text?.ToString(),
+                    });
+                }
+            string jsonStringC = JsonConvert.SerializeObject(elementCData);
+            File.WriteAllText(filePathC, jsonStringC);
+        }
+
         private void add_gap_rect(double gap)
         {
+
             Rectangle rectangle = new Rectangle
             {
                 Height = 1,
@@ -486,15 +524,15 @@ namespace todoLIST
         }
 
         bool flag = false;
-        
-        private async void test(object sender, RoutedEventArgs e)
+        bool flagl = false;
+        private void test(object sender, RoutedEventArgs e)
         {
             string filePathC = "uielementC.json";
             Button button1 = (Button)sender;
             
             DependencyObject parent = button1.Parent;
             Border border = new Border();
-
+            
             if (flag == false)
             {
                 Grid.SetColumn(border, 1);
@@ -529,6 +567,13 @@ namespace todoLIST
 
 
                         parentGrid.Children.Add(border);
+                        if (flagl == false)
+                        {
+                            border.Child = canvas;
+                            flagl = true;
+                        }
+
+
                     }
 
                     else
@@ -543,6 +588,7 @@ namespace todoLIST
             {
                 if (parent is Grid parentGrid)
                 {
+                    //canvas.Children.Clear();
                     parentGrid.Children.RemoveAt(12);//last border
 
                     DoubleAnimation animation = new DoubleAnimation
@@ -555,31 +601,24 @@ namespace todoLIST
                         EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseInOut }
                     };
 
-                    // Создайте Storyboard и добавьте анимацию
                     Storyboard storyboard = new Storyboard();
                     storyboard.Children.Add(animation);
                     Storyboard.SetTarget(animation, br);
                     Storyboard.SetTarget(animation, ChekboxPanel);
-                    //Storyboard.SetTarget(animation, mainPalka);
                     Storyboard.SetTargetProperty(animation, new PropertyPath(UIElement.OpacityProperty));
 
-
-                    // Запустите анимацию
                     storyboard.Begin(ChekboxPanel);
-                    //await Task.Delay(500);
-                    //storyboard.Begin(mainPalka);
-                    //await Task.Delay(80);
-                    //storyboard.Begin(br);
 
-                    //await Task.Delay(1000);
+
                 }
 
                 flag = false;
 
                 return;
             }
+
+
             canvas = new Canvas();
-            border.Child = canvas;
 
             LoadCanvasData(filePathC);
 
@@ -597,14 +636,25 @@ namespace todoLIST
             scrollViewer.VerticalAlignment = VerticalAlignment.Stretch;
             border.Child = scrollViewer;
 
+            
 
-            AddNewTextBlock(str);
+            newTextBlock = AddNewTextBlock(str);
+            if (newTextBlock != null )
+                canvas.Children.Add(newTextBlock);
 
+            autoSave(filePathC);
+            //LoadCanvasData(filePathC);
         }
 
-        private void AddNewTextBlock(string text)
+        
+
+        TextBlock newTextBlock;
+        private TextBlock AddNewTextBlock(string text)
         {
-            TextBlock newTextBlock = new TextBlock
+            if (text == null)
+                return null;
+
+            newTextBlock = new TextBlock
             {
                 VerticalAlignment = VerticalAlignment.Top,
                 HorizontalAlignment = HorizontalAlignment.Center,
@@ -613,9 +663,14 @@ namespace todoLIST
                 FontSize = 14,
             };
 
-            newTextBlock.Margin = new Thickness(0, canvas.Children.Count * 45, 0, 0);
-            canvas.Children.Add(newTextBlock);
-            add_gap_rect(canvas.Children.Count * 45);
+            newTextBlock.Margin = new Thickness(0, 80 + 11, 0, 0);
+            
+            add_gap_rect(80 + 41 + newTextBlock.ActualHeight);
+
+
+            str = null;
+            return newTextBlock;
+
         }
     }
 }
