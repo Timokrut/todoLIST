@@ -23,6 +23,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Media.TextFormatting;
 using System.CodeDom;
+using todoLIST;
 
 namespace todoLIST
 {
@@ -65,10 +66,113 @@ namespace todoLIST
             Completed.Template = template1;
             Completed.Background = new SolidColorBrush(Color.FromArgb(200, 123, 124, 129));
             LoadData(filePath);
-
-            //canvas.Loaded += Canvas_Loaded;
+            LoadCanvasData(filePathC);
 
             this.Closed += Window_Closed;
+        }
+
+        public  void SaveData(string filePath, string filePathC)
+        {
+            List<UIElementData> elementsData = new List<UIElementData>();
+
+            foreach (UIElement element in ChekboxPanel.Children)
+            {
+                if (element is CheckBox checkBox)
+                {
+                    elementsData.Add(new UIElementData
+                    {
+                        Text = checkBox.Content?.ToString(),
+                        IsChecked = checkBox.IsChecked,
+                    });
+                }
+            }
+
+            string jsonString = JsonConvert.SerializeObject(elementsData);
+            File.WriteAllText(filePath, jsonString);
+
+
+            List<UICanvasData> elementCData = new List<UICanvasData>();
+
+            foreach (UIElement element in canvas.Children)
+                if (element is TextBlock textBlock)
+                {
+                    elementCData.Add(new UICanvasData
+                    {
+                        Text = textBlock.Text?.ToString(),
+                    });
+                }
+            string jsonStringC = JsonConvert.SerializeObject(elementCData);
+            File.WriteAllText(filePathC, jsonStringC);
+        }
+
+        public void LoadData(string filePath)
+        {
+            if (!File.Exists(filePath))
+                return;
+
+            string jsonString = File.ReadAllText(filePath);
+            List<UIElementData> elementsData = JsonConvert.DeserializeObject<List<UIElementData>>(jsonString);
+
+            foreach (UIElementData data in elementsData)
+                if (!string.IsNullOrEmpty(data.Text))
+                {
+                    if (data.IsChecked.HasValue)
+                    {
+                        CheckBox checkBox = new CheckBox
+                        {
+                            Content = data.Text,
+                            IsChecked = data.IsChecked.Value,
+                            Margin = new Thickness(5),
+                            FontSize = 14,
+                            Foreground = Brushes.White
+                        };
+
+                        checkBox.Checked += Is_CheckedAsync;
+                        ChekboxPanel.Children.Add(checkBox);
+                        lineUnderCheckBox = new Rectangle
+                        {
+                            Height = 1,
+                            Width = 610,
+                            Stroke = Brushes.Gray,
+                            HorizontalAlignment = HorizontalAlignment.Center,
+                            VerticalAlignment = VerticalAlignment.Center
+                        };
+                        ChekboxPanel.Children.Add(lineUnderCheckBox);
+                    }
+                }
+        }
+        double Gap_Between_Completed_Tasks;
+
+        public void LoadCanvasData(string filePathC)
+        {
+            if (File.Exists(filePathC))
+            {
+                string jsonString = File.ReadAllText(filePathC);
+                List<UICanvasData> elementCData = JsonConvert.DeserializeObject<List<UICanvasData>>(jsonString);
+
+                Gap_Between_Completed_Tasks = 0;
+                foreach (UICanvasData data in elementCData)
+                {
+                    if (!string.IsNullOrEmpty(data.Text) && data.Text.Length > 0)
+                    {
+                        TextBlock textBlock = new TextBlock();
+                        textBlock.VerticalAlignment = VerticalAlignment.Top;
+                        textBlock.HorizontalAlignment = HorizontalAlignment.Center;
+                        textBlock.Text = data.Text;
+                        textBlock.Foreground = Brushes.White;
+                        textBlock.FontSize = 14;
+
+                        textBlock.Loaded += (sender, e) =>
+                        {
+                            textBlock.Margin = new Thickness(0, Gap_Between_Completed_Tasks + 11, 0, 0);
+                            Gap_Between_Completed_Tasks += textBlock.ActualHeight + 23;
+                            add_gap_rect(Gap_Between_Completed_Tasks);
+                        };
+                        canvas.Children.Add(textBlock);
+                        UpdateSizeButton();
+                    }
+                }
+            }
         }
 
         private void Canvas_Loaded(object sender, RoutedEventArgs e)
@@ -387,110 +491,7 @@ namespace todoLIST
 
 
 
-        public void SaveData(string filePath, string filePathC)
-        {
-                    List<UIElementData> elementsData = new List<UIElementData>();
-
-                    foreach (UIElement element in ChekboxPanel.Children)
-                    {
-                        if (element is CheckBox checkBox)
-                        {
-                            elementsData.Add(new UIElementData
-                            {
-                                Text = checkBox.Content?.ToString(),
-                                IsChecked = checkBox.IsChecked,
-                            });
-                        }
-                    }
-
-                    string jsonString = JsonConvert.SerializeObject(elementsData);
-                    File.WriteAllText(filePath, jsonString);
-
-
-                    List<UICanvasData> elementCData = new List<UICanvasData>();
-
-                    foreach (UIElement element in canvas.Children)
-                        if (element is TextBlock textBlock)
-                        {
-                            elementCData.Add(new UICanvasData
-                            {
-                                Text = textBlock.Text?.ToString(),
-                            });
-                        }
-                    string jsonStringC = JsonConvert.SerializeObject(elementCData);
-                    File.WriteAllText(filePathC, jsonStringC);
-        }
-
-        public void LoadData(string filePath)
-        {
-            if (!File.Exists(filePath))
-                return;
-
-            string jsonString = File.ReadAllText(filePath);
-            List<UIElementData> elementsData = JsonConvert.DeserializeObject<List<UIElementData>>(jsonString);
-
-            foreach (UIElementData data in elementsData)
-                if (!string.IsNullOrEmpty(data.Text))
-                {
-                    if (data.IsChecked.HasValue)
-                    {
-                        CheckBox checkBox = new CheckBox
-                        {
-                            Content = data.Text,
-                            IsChecked = data.IsChecked.Value,
-                            Margin = new Thickness(5),
-                            FontSize = 14,
-                            Foreground = Brushes.White
-                        };
-                        
-                        checkBox.Checked += Is_CheckedAsync;
-                        ChekboxPanel.Children.Add(checkBox);
-                        lineUnderCheckBox = new Rectangle
-                        {
-                            Height = 1,
-                            Width = 610,
-                            Stroke = Brushes.Gray,
-                            HorizontalAlignment = HorizontalAlignment.Center,
-                            VerticalAlignment = VerticalAlignment.Center
-                        };
-                        ChekboxPanel.Children.Add(lineUnderCheckBox);
-                    }
-                }
-        }
-        double Gap_Between_Completed_Tasks;
-
-        private void LoadCanvasData(string filePathC)
-        {
-            if (File.Exists(filePathC))
-            {
-                string jsonString = File.ReadAllText(filePathC);
-                List<UICanvasData> elementCData = JsonConvert.DeserializeObject<List<UICanvasData>>(jsonString);
-                
-                Gap_Between_Completed_Tasks = 0;
-                foreach (UICanvasData data in elementCData)
-                {
-                    if (!string.IsNullOrEmpty(data.Text) && data.Text.Length > 0)
-                    {
-                        TextBlock textBlock = new TextBlock();
-                        textBlock.VerticalAlignment = VerticalAlignment.Top;
-                        textBlock.HorizontalAlignment = HorizontalAlignment.Center;
-                        textBlock.Text = data.Text;
-                        textBlock.Foreground = Brushes.White;
-                        textBlock.FontSize = 14;
-                        textBlock.Height = 14;
-
-
-                        textBlock.Loaded += (sender, e) =>
-                        {
-                            textBlock.Margin = new Thickness(0, Gap_Between_Completed_Tasks + 11, 0, 0);
-                            Gap_Between_Completed_Tasks += textBlock.ActualHeight + 23;
-                            add_gap_rect(Gap_Between_Completed_Tasks);
-                        };
-                        canvas.Children.Add(textBlock);
-                    }
-                }
-            }
-        }
+        
 
         private void autoSave(string filePathC)
         {
@@ -642,7 +643,7 @@ namespace todoLIST
             if (newTextBlock != null )
                 canvas.Children.Add(newTextBlock);
 
-            autoSave(filePathC);
+            //autoSave(filePathC);
             //LoadCanvasData(filePathC);
         }
 
@@ -667,10 +668,40 @@ namespace todoLIST
             
             add_gap_rect(80 + 41 + newTextBlock.ActualHeight);
 
-
             str = null;
             return newTextBlock;
-
         }
+        Button load;
+        int button_pos = 450;
+
+        private void Update_Click(object sender, RoutedEventArgs e)
+        {
+            canvas.Height += 700;
+            button_pos += 200;
+            canvas.Children.Remove(load);
+
+            load.Margin = new Thickness(0, button_pos, 0, 0);
+        }
+
+
+        private void UpdateSizeButton()
+        {
+            load = new Button();
+            load.Content = "Load more";
+            
+            load.Height = 30;
+            load.Width = 50;
+            load.Margin = new Thickness(0, button_pos, 0, 0);
+            
+            load.HorizontalAlignment = HorizontalAlignment.Left;
+            load.VerticalAlignment = VerticalAlignment.Bottom;
+            
+            load.Background = Brushes.Green;
+            load.Foreground = Brushes.White;
+            
+            load.Click += Update_Click;
+            if (canvas.Children.Count > 10) 
+                canvas.Children.Add(load);
+        } 
     }
 }
