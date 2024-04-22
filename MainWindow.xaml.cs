@@ -36,15 +36,25 @@ namespace todoLIST
     {
         // Variables
         TextBox textInCheckBox;
-        CheckBox checkBox;
+        CheckBox checkBoxInCheckBoxPanel;
         Rectangle lineUnderCheckBox;
-        Button Submit;
+        Button submitButton;
+        Button updateSizeButton;
         TextBlock textBlock;
-        Canvas canvas = new Canvas();
-        string filePathC = "uielementC.json";
-        bool flagFullScrean = false;
+        TextBlock newTextBlock;
 
-        string str;
+        Canvas canvasForStoringTheHistoryOfComplitedTasks = new Canvas();
+
+        string filePathC = "uielementC.json";
+        string stringForSavingInCanvasForStoring;
+
+        bool flagFullScrean = false;
+        bool flagForSwitchingBetweenBorders = false;
+        bool flagAddingCanvasOnceForStoringHistiry = false;
+
+        double Gap_Between_Completed_Tasks;
+
+        int buttonPosition = 450;
 
         // Main
         public MainWindow()
@@ -52,18 +62,18 @@ namespace todoLIST
             InitializeComponent();
 
             string filePath = "uielements.json";
-            ControlTemplate template1 = new ControlTemplate(typeof(Button));
-            FrameworkElementFactory border1 = new FrameworkElementFactory(typeof(Border));
-            border1.SetValue(Border.CornerRadiusProperty, new CornerRadius(10));
-            border1.SetValue(Border.BackgroundProperty, new TemplateBindingExtension(Control.BackgroundProperty));
-            border1.AppendChild(new FrameworkElementFactory(typeof(ContentPresenter))
+            ControlTemplate templateOfButtonComplited = new ControlTemplate(typeof(Button));
+            FrameworkElementFactory borderOfButtonComplited = new FrameworkElementFactory(typeof(Border));
+            borderOfButtonComplited.SetValue(Border.CornerRadiusProperty, new CornerRadius(10));
+            borderOfButtonComplited.SetValue(Border.BackgroundProperty, new TemplateBindingExtension(Control.BackgroundProperty));
+            borderOfButtonComplited.AppendChild(new FrameworkElementFactory(typeof(ContentPresenter))
             {
                 Name = "PART_ContentHost"
             });
-            template1.VisualTree = border1;
+            templateOfButtonComplited.VisualTree = borderOfButtonComplited;
 
             Completed.Content = " Completed";
-            Completed.Template = template1;
+            Completed.Template = templateOfButtonComplited;
             Completed.Background = new SolidColorBrush(Color.FromArgb(200, 123, 124, 129));
             LoadData(filePath);
             LoadCanvasData(filePathC);
@@ -93,7 +103,7 @@ namespace todoLIST
 
             List<UICanvasData> elementCData = new List<UICanvasData>();
 
-            foreach (UIElement element in canvas.Children)
+            foreach (UIElement element in canvasForStoringTheHistoryOfComplitedTasks.Children)
                 if (element is TextBlock textBlock)
                 {
                     elementCData.Add(new UICanvasData
@@ -101,6 +111,7 @@ namespace todoLIST
                         Text = textBlock.Text?.ToString(),
                     });
                 }
+
             string jsonStringC = JsonConvert.SerializeObject(elementCData);
             File.WriteAllText(filePathC, jsonStringC);
         }
@@ -141,7 +152,6 @@ namespace todoLIST
                     }
                 }
         }
-        double Gap_Between_Completed_Tasks;
 
         public void LoadCanvasData(string filePathC)
         {
@@ -155,20 +165,20 @@ namespace todoLIST
                 {
                     if (!string.IsNullOrEmpty(data.Text) && data.Text.Length > 0)
                     {
-                        TextBlock textBlock = new TextBlock();
-                        textBlock.VerticalAlignment = VerticalAlignment.Top;
-                        textBlock.HorizontalAlignment = HorizontalAlignment.Center;
-                        textBlock.Text = data.Text;
-                        textBlock.Foreground = Brushes.White;
-                        textBlock.FontSize = 14;
+                        TextBlock loadTextBlockIntoCanvas = new TextBlock();
+                        loadTextBlockIntoCanvas.VerticalAlignment = VerticalAlignment.Top;
+                        loadTextBlockIntoCanvas.HorizontalAlignment = HorizontalAlignment.Center;
+                        loadTextBlockIntoCanvas.Text = data.Text;
+                        loadTextBlockIntoCanvas.Foreground = Brushes.White;
+                        loadTextBlockIntoCanvas.FontSize = 14;
 
-                        textBlock.Loaded += (sender, e) =>
+                        loadTextBlockIntoCanvas.Loaded += (sender, e) =>
                         {
-                            textBlock.Margin = new Thickness(0, Gap_Between_Completed_Tasks + 11, 0, 0);
-                            Gap_Between_Completed_Tasks += textBlock.ActualHeight + 23;
+                            loadTextBlockIntoCanvas.Margin = new Thickness(0, Gap_Between_Completed_Tasks + 11, 0, 0);
+                            Gap_Between_Completed_Tasks += loadTextBlockIntoCanvas.ActualHeight + 23;
                             add_gap_rect(Gap_Between_Completed_Tasks);
                         };
-                        canvas.Children.Add(textBlock);
+                        canvasForStoringTheHistoryOfComplitedTasks.Children.Add(loadTextBlockIntoCanvas);
                         UpdateSizeButton();
                     }
                 }
@@ -178,7 +188,7 @@ namespace todoLIST
         private void Canvas_Loaded(object sender, RoutedEventArgs e)
         {
             string filePathC = "uielementC.json";
-            LoadCanvasData(filePathC); // Вызываем LoadCanvasData после загрузки Canvas
+            LoadCanvasData(filePathC);
         }
 
 
@@ -204,7 +214,6 @@ namespace todoLIST
             {
                 this.WindowState = WindowState.Maximized;
 
-                //ChekboxPanel.Margin = new Thickness(0, 0, 500, 0);
                 flagFullScrean = true;
             }
 
@@ -212,7 +221,6 @@ namespace todoLIST
             {
                 this.WindowState = WindowState.Normal;
 
-                //ChekboxPanel.Margin = new Thickness(0, 0, 200, 0);
                 flagFullScrean = false;
             }
         }
@@ -227,54 +235,54 @@ namespace todoLIST
         //Start of check boxes and their logic
         //
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void NewTaskButton_Click(object sender, RoutedEventArgs e)
         {
             NewTask.Visibility = Visibility.Collapsed;
 
             // creating entities
-            checkBox = new CheckBox();
+            checkBoxInCheckBoxPanel = new CheckBox();
             textInCheckBox = new TextBox();
             lineUnderCheckBox = new Rectangle();
 
-            ControlTemplate template = new ControlTemplate(typeof(TextBox));
-            FrameworkElementFactory border = new FrameworkElementFactory(typeof(Border));
-            border.SetValue(Border.CornerRadiusProperty, new CornerRadius(5));
-            border.SetValue(Border.BackgroundProperty, new TemplateBindingExtension(Control.BackgroundProperty));
-            border.SetValue(Border.BorderThicknessProperty, new TemplateBindingExtension(Control.BorderThicknessProperty));
-            border.SetValue(Border.BorderBrushProperty, new TemplateBindingExtension(Control.BorderBrushProperty));
-            border.AppendChild(new FrameworkElementFactory(typeof(ScrollViewer))
+            ControlTemplate textInCheckBoxTemplate = new ControlTemplate(typeof(TextBox));
+            FrameworkElementFactory borderForTextInCheckBox = new FrameworkElementFactory(typeof(Border));
+            borderForTextInCheckBox.SetValue(Border.CornerRadiusProperty, new CornerRadius(5));
+            borderForTextInCheckBox.SetValue(Border.BackgroundProperty, new TemplateBindingExtension(Control.BackgroundProperty));
+            borderForTextInCheckBox.SetValue(Border.BorderThicknessProperty, new TemplateBindingExtension(Control.BorderThicknessProperty));
+            borderForTextInCheckBox.SetValue(Border.BorderBrushProperty, new TemplateBindingExtension(Control.BorderBrushProperty));
+            borderForTextInCheckBox.AppendChild(new FrameworkElementFactory(typeof(ScrollViewer))
             {
                 Name = "PART_ContentHost"
             });
 
-            template.VisualTree = border;
-            textInCheckBox.Template = template;
+            textInCheckBoxTemplate.VisualTree = borderForTextInCheckBox;
+            textInCheckBox.Template = textInCheckBoxTemplate;
 
             textInCheckBox.Text += "Wtrite Somesthing";
             
 
             textInCheckBox.KeyDown += textInCheckBox_KeyDown;
-            textInCheckBox.GotFocus += Focus;
+            textInCheckBox.GotFocus += clickOnTextInCheckBox;
             
             
 
-            Submit = new Button();
-            ControlTemplate template1 = new ControlTemplate(typeof(Button));
-            FrameworkElementFactory border1 = new FrameworkElementFactory(typeof(Border));
-            border1.SetValue(Border.CornerRadiusProperty, new CornerRadius(3));
-            border1.SetValue(Border.BackgroundProperty, new TemplateBindingExtension(Control.BackgroundProperty));
-            border1.AppendChild(new FrameworkElementFactory(typeof(ContentPresenter))
+            submitButton = new Button();
+            ControlTemplate submitButtonTemplate = new ControlTemplate(typeof(Button));
+            FrameworkElementFactory borderForSubmitButton = new FrameworkElementFactory(typeof(Border));
+            borderForSubmitButton.SetValue(Border.CornerRadiusProperty, new CornerRadius(3));
+            borderForSubmitButton.SetValue(Border.BackgroundProperty, new TemplateBindingExtension(Control.BackgroundProperty));
+            borderForSubmitButton.AppendChild(new FrameworkElementFactory(typeof(ContentPresenter))
             {
                 Name = "PART_ContentHost"
             });
-            template1.VisualTree = border1;
+            submitButtonTemplate.VisualTree = borderForSubmitButton;
 
-            Submit.Template = template1;
+            submitButton.Template = submitButtonTemplate;
 
-            Submit.Click += Submit_CLick;
-            TextPanel.Children.Add(Submit);
+            submitButton.Click += Submit_CLick;
+            TextPanel.Children.Add(submitButton);
 
-            Submit.Content = "  Submit";    
+            submitButton.Content = "  Submit";    
 
             TextPanel.Children.Add(textInCheckBox);
 
@@ -287,14 +295,14 @@ namespace todoLIST
                 FillBehavior = FillBehavior.HoldEnd
             };
 
-            Storyboard myStoryboard = new Storyboard();
-            myStoryboard.Children.Add(animationTextInCheckBox);
+            Storyboard textInCheckBoxStoryboard = new Storyboard();
+            textInCheckBoxStoryboard.Children.Add(animationTextInCheckBox);
             Storyboard.SetTarget(animationTextInCheckBox, textInCheckBox);
             Storyboard.SetTargetProperty(animationTextInCheckBox, new PropertyPath(Rectangle.OpacityProperty));
 
-            myStoryboard.Begin(textInCheckBox);
+            textInCheckBoxStoryboard.Begin(textInCheckBox);
 
-            DoubleAnimation animationButton = new DoubleAnimation
+            DoubleAnimation animationSubmitButton = new DoubleAnimation
             {
                 From = 0,
                 To = 1,
@@ -303,12 +311,12 @@ namespace todoLIST
                 FillBehavior = FillBehavior.HoldEnd
             };
 
-            Storyboard buttonStoryboard = new Storyboard();
-            buttonStoryboard.Children.Add(animationButton);
-            Storyboard.SetTarget(animationButton, Submit);
-            Storyboard.SetTargetProperty(animationButton, new PropertyPath(UIElement.OpacityProperty));
+            Storyboard submitButtonStoryboard = new Storyboard();
+            submitButtonStoryboard.Children.Add(animationSubmitButton);
+            Storyboard.SetTarget(animationSubmitButton, submitButton);
+            Storyboard.SetTargetProperty(animationSubmitButton, new PropertyPath(UIElement.OpacityProperty));
 
-            buttonStoryboard.Begin(Submit);
+            submitButtonStoryboard.Begin(submitButton);
 
 
             lineUnderCheckBox.Height = 1;
@@ -318,14 +326,14 @@ namespace todoLIST
             lineUnderCheckBox.VerticalAlignment = VerticalAlignment.Center;
 
             // Start Customization
-            Canvas.SetBottom(Submit, 0);
-            Canvas.SetLeft(Submit, 20);
+            Canvas.SetBottom(submitButton, 0);
+            Canvas.SetLeft(submitButton, 20);
 
-            Submit.Height = 20;
-            Submit.Width = 50;
+            submitButton.Height = 20;
+            submitButton.Width = 50;
 
-            Submit.Background = Brushes.Green;
-            Submit.Foreground = Brushes.White;
+            submitButton.Background = Brushes.Green;
+            submitButton.Foreground = Brushes.White;
            
             Canvas.SetLeft(textInCheckBox, 174);
             Canvas.SetTop(textInCheckBox, 0);
@@ -346,41 +354,42 @@ namespace todoLIST
 
         private void customizeCheckBox()
         {
-            Grid.SetRow(checkBox, 2);
-            Grid.SetColumn(checkBox, 1);
-            checkBox.Margin = new Thickness(5);
-            checkBox.FontSize = 14;
-            checkBox.Foreground = Brushes.White;
+            Grid.SetRow(checkBoxInCheckBoxPanel, 2);
+            Grid.SetColumn(checkBoxInCheckBoxPanel, 1);
+            checkBoxInCheckBoxPanel.Margin = new Thickness(5);
+            checkBoxInCheckBoxPanel.FontSize = 14;
+            checkBoxInCheckBoxPanel.Foreground = Brushes.White;
         }
 
         private async void Is_CheckedAsync(object sender, RoutedEventArgs e)
         {
-            if (sender is CheckBox checkBox && checkBox.IsChecked == true )
+            if (sender is CheckBox Help_Check_Box && Help_Check_Box.IsChecked == true )
             {
-                checkBox.IsEnabled = false;
+                Help_Check_Box.IsEnabled = false;
 
-                str = (string)checkBox.Content;
+                stringForSavingInCanvasForStoring = (string)Help_Check_Box.Content;
 
-
-                newTextBlock = AddNewTextBlock(str);
+                newTextBlock = AddNewTextBlock(stringForSavingInCanvasForStoring);
                 if (newTextBlock != null)
-                    canvas.Children.Add(newTextBlock);
+                    canvasForStoringTheHistoryOfComplitedTasks.Children.Add(newTextBlock);
 
                 autoSave(filePathC);
 
                 textBlock = new TextBlock();
-                textBlock.Text = (string)checkBox.Content;
+                textBlock.Text = (string)Help_Check_Box.Content;
                 textBlock.TextDecorations = TextDecorations.Strikethrough;
                 textBlock.Foreground = Brushes.Black;
                 textBlock.FontSize = 15;
-                checkBox.Content = textBlock;
+                Help_Check_Box.Content = textBlock;
 
                 await Task.Delay(1000);
-                int index = ChekboxPanel.Children.IndexOf(checkBox);
+
+                int index = ChekboxPanel.Children.IndexOf(Help_Check_Box);
                 ChekboxPanel.Children.RemoveAt(index+1);
+
                 DoubleAnimation widthAnimation = new DoubleAnimation
                 {
-                    From = checkBox.ActualWidth,
+                    From = Help_Check_Box.ActualWidth,
                     To = 0,
                     Duration = TimeSpan.FromSeconds(0.5),
                     FillBehavior = FillBehavior.Stop
@@ -388,7 +397,7 @@ namespace todoLIST
 
                 DoubleAnimation heightAnimation = new DoubleAnimation
                 {
-                    From = checkBox.ActualHeight,
+                    From = Help_Check_Box.ActualHeight,
                     To = 0,
                     Duration = TimeSpan.FromSeconds(0.5),
                     FillBehavior = FillBehavior.Stop
@@ -402,33 +411,28 @@ namespace todoLIST
                     FillBehavior = FillBehavior.Stop
                 };
 
-                Storyboard storyboard = new Storyboard();
-                storyboard.Children.Add(widthAnimation);
-                storyboard.Children.Add(heightAnimation);
-                storyboard.Children.Add(opacityAnimation);
+                Storyboard checkBoxStoryboard = new Storyboard();
+                checkBoxStoryboard.Children.Add(widthAnimation);
+                checkBoxStoryboard.Children.Add(heightAnimation);
+                checkBoxStoryboard.Children.Add(opacityAnimation);
 
-                Storyboard.SetTarget(widthAnimation, checkBox);
-                Storyboard.SetTarget(heightAnimation, checkBox);
-                Storyboard.SetTarget(opacityAnimation, checkBox);
+                Storyboard.SetTarget(widthAnimation, Help_Check_Box);
+                Storyboard.SetTarget(heightAnimation, Help_Check_Box);
+                Storyboard.SetTarget(opacityAnimation, Help_Check_Box);
 
                 Storyboard.SetTargetProperty(widthAnimation, new PropertyPath(FrameworkElement.WidthProperty));
                 Storyboard.SetTargetProperty(heightAnimation, new PropertyPath(FrameworkElement.HeightProperty));
                 Storyboard.SetTargetProperty(opacityAnimation, new PropertyPath(UIElement.OpacityProperty));
 
-                storyboard.Begin(checkBox);
-                
+                checkBoxStoryboard.Begin(Help_Check_Box);
 
                 await Task.Delay(490);
 
-                ChekboxPanel.Children.Remove(checkBox);
-
-                
-
-                
+                ChekboxPanel.Children.Remove(Help_Check_Box);
             }
         }
 
-        private void Focus(object sender, RoutedEventArgs e)
+        private void clickOnTextInCheckBox(object sender, RoutedEventArgs e)
         {
             textInCheckBox.SpellCheck.IsEnabled = true;
 
@@ -441,12 +445,12 @@ namespace todoLIST
         {
             if (e.Key == Key.Enter && (Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift)
             {
-                var textBox = sender as TextBox;
-                if (textBox != null)
+                var Help_textBox = sender as TextBox;
+                if (Help_textBox != null)
                 {
-                    int caretPosition = textBox.CaretIndex;
-                    textBox.Text = textBox.Text.Insert(caretPosition, "\n");
-                    textBox.CaretIndex = caretPosition + 1;
+                    int caretPosition = Help_textBox.CaretIndex;
+                    Help_textBox.Text = Help_textBox.Text.Insert(caretPosition, "\n");
+                    Help_textBox.CaretIndex = caretPosition + 1;
                 }
                 
                 e.Handled = true;
@@ -468,20 +472,20 @@ namespace todoLIST
                 return;
             }
 
-            string str = textInCheckBox.Text.Trim();
+            string stringForTrim = textInCheckBox.Text.Trim();
 
-            textInCheckBox.Text = str;
+            textInCheckBox.Text = stringForTrim;
 
-            checkBox.Content = textInCheckBox.Text;
+            checkBoxInCheckBoxPanel.Content = textInCheckBox.Text;
             TextPanel.Children.Remove(textInCheckBox);
 
-            checkBox.Checked += Is_CheckedAsync;
+            checkBoxInCheckBoxPanel.Checked += Is_CheckedAsync;
 
-            ChekboxPanel.Children.Add(checkBox);
+            ChekboxPanel.Children.Add(checkBoxInCheckBoxPanel);
 
             ChekboxPanel.Children.Add(lineUnderCheckBox);
 
-            TextPanel.Children.Remove(Submit);
+            TextPanel.Children.Remove(submitButton);
             NewTask.Visibility = Visibility.Visible;
         }
 
@@ -497,12 +501,12 @@ namespace todoLIST
         {
             List<UICanvasData> elementCData = new List<UICanvasData>();
 
-            foreach (UIElement element in canvas.Children)
-                if (element is TextBlock textBlock)
+            foreach (UIElement element in canvasForStoringTheHistoryOfComplitedTasks.Children)
+                if (element is TextBlock Help_textBlock)
                 {
                     elementCData.Add(new UICanvasData
                     {
-                        Text = textBlock.Text?.ToString(),
+                        Text = Help_textBlock.Text?.ToString(),
                     });
                 }
             string jsonStringC = JsonConvert.SerializeObject(elementCData);
@@ -512,7 +516,7 @@ namespace todoLIST
         private void add_gap_rect(double gap)
         {
 
-            Rectangle rectangle = new Rectangle
+            Rectangle abbGapRectangle = new Rectangle
             {
                 Height = 1,
                 Width = 610,
@@ -521,26 +525,25 @@ namespace todoLIST
                 VerticalAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(0, gap, 0, 0),
             };
-            canvas.Children.Add(rectangle);
+            canvasForStoringTheHistoryOfComplitedTasks.Children.Add(abbGapRectangle);
         }
 
-        bool flag = false;
-        bool flagl = false;
-        private void test(object sender, RoutedEventArgs e)
+        
+        private void ComplitedButton_Click(object sender, RoutedEventArgs e)
         {
             string filePathC = "uielementC.json";
             Button button1 = (Button)sender;
             
             DependencyObject parent = button1.Parent;
-            Border border = new Border();
+            Border borderAfterClickingOnComplited = new Border();
             
-            if (flag == false)
+            if (flagForSwitchingBetweenBorders == false)
             {
-                Grid.SetColumn(border, 1);
-                Grid.SetRow(border, 1);
-                Grid.SetRowSpan(border, 2);
+                Grid.SetColumn(borderAfterClickingOnComplited, 1);
+                Grid.SetRow(borderAfterClickingOnComplited, 1);
+                Grid.SetRowSpan(borderAfterClickingOnComplited, 2);
 
-                border.Background = new SolidColorBrush(Color.FromRgb(30, 30, 30));
+                borderAfterClickingOnComplited.Background = new SolidColorBrush(Color.FromRgb(30, 30, 30));
 
                 Button button = sender as Button;
                 if (button != null)
@@ -550,7 +553,7 @@ namespace todoLIST
 
                     if (parent is Grid parentGrid)
                     {
-                        DoubleAnimation animationButton = new DoubleAnimation
+                        DoubleAnimation animationAppearanceBorderAfterCkick = new DoubleAnimation
                         {
                             From = 0,
                             To = 1,
@@ -559,40 +562,31 @@ namespace todoLIST
                             FillBehavior = FillBehavior.HoldEnd
                         };
 
-                        Storyboard buttonStoryboard = new Storyboard();
-                        buttonStoryboard.Children.Add(animationButton);
-                        Storyboard.SetTarget(animationButton, border);
-                        Storyboard.SetTargetProperty(animationButton, new PropertyPath(UIElement.OpacityProperty)); 
+                        Storyboard appearanceBorderAfterCkickStoryboard = new Storyboard();
+                        appearanceBorderAfterCkickStoryboard.Children.Add(animationAppearanceBorderAfterCkick);
+                        Storyboard.SetTarget(animationAppearanceBorderAfterCkick, borderAfterClickingOnComplited);
+                        Storyboard.SetTargetProperty(animationAppearanceBorderAfterCkick, new PropertyPath(UIElement.OpacityProperty));
 
-                        buttonStoryboard.Begin(border);
+                        appearanceBorderAfterCkickStoryboard.Begin(borderAfterClickingOnComplited);
 
-
-                        parentGrid.Children.Add(border);
-                        if (flagl == false)
+                        parentGrid.Children.Add(borderAfterClickingOnComplited);
+                        if (flagAddingCanvasOnceForStoringHistiry == false)
                         {
-                            border.Child = canvas;
-                            flagl = true;
+                            borderAfterClickingOnComplited.Child = canvasForStoringTheHistoryOfComplitedTasks;
+                            flagAddingCanvasOnceForStoringHistiry = true;
                         }
-
-
                     }
-
-                    else
-                        Console.WriteLine("Grid не найден");
                 }
-
-                flag = true;
-
+                flagForSwitchingBetweenBorders = true;
             }
 
             else
             {
                 if (parent is Grid parentGrid)
                 {
-                    //canvas.Children.Clear();
                     parentGrid.Children.RemoveAt(12);//last border
 
-                    DoubleAnimation animation = new DoubleAnimation
+                    DoubleAnimation animationAppearanceCheckboxPanel = new DoubleAnimation
                     {
                         From = 0,
                         To = 1,
@@ -602,64 +596,55 @@ namespace todoLIST
                         EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseInOut }
                     };
 
-                    Storyboard storyboard = new Storyboard();
-                    storyboard.Children.Add(animation);
-                    Storyboard.SetTarget(animation, br);
-                    Storyboard.SetTarget(animation, ChekboxPanel);
-                    Storyboard.SetTargetProperty(animation, new PropertyPath(UIElement.OpacityProperty));
+                    Storyboard appearanceCheckboxPanelStoryboard = new Storyboard();
+                    appearanceCheckboxPanelStoryboard.Children.Add(animationAppearanceCheckboxPanel);
+                    Storyboard.SetTarget(animationAppearanceCheckboxPanel, br);
+                    Storyboard.SetTarget(animationAppearanceCheckboxPanel, ChekboxPanel);
+                    Storyboard.SetTargetProperty(animationAppearanceCheckboxPanel, new PropertyPath(UIElement.OpacityProperty));
 
-                    storyboard.Begin(ChekboxPanel);
-
-
+                    appearanceCheckboxPanelStoryboard.Begin(ChekboxPanel);
                 }
-
-                flag = false;
+                flagForSwitchingBetweenBorders = false;
 
                 return;
             }
 
 
-            canvas = new Canvas();
+            canvasForStoringTheHistoryOfComplitedTasks = new Canvas();
 
             LoadCanvasData(filePathC);
 
-            canvas.VerticalAlignment = VerticalAlignment.Top;
+            canvasForStoringTheHistoryOfComplitedTasks.VerticalAlignment = VerticalAlignment.Top;
 
-            canvas.Width = 610;
-            canvas.Height = 40 * canvas.Children.Count * 1.1; // TODO AUTO SIZE
-            canvas.Margin = new Thickness(0, 50, 0, 0);
+            canvasForStoringTheHistoryOfComplitedTasks.Width = 610;
+            canvasForStoringTheHistoryOfComplitedTasks.Height = 40 * canvasForStoringTheHistoryOfComplitedTasks.Children.Count * 1.1; // TODO AUTO SIZE
+            canvasForStoringTheHistoryOfComplitedTasks.Margin = new Thickness(0, 50, 0, 0);
 
-            ScrollViewer scrollViewer = new ScrollViewer();
-            scrollViewer.Content = canvas;
-            scrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
-            scrollViewer.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
-            scrollViewer.HorizontalAlignment = HorizontalAlignment.Stretch;
-            scrollViewer.VerticalAlignment = VerticalAlignment.Stretch;
-            border.Child = scrollViewer;
+            ScrollViewer scrollViewerForCanvasForStoring = new ScrollViewer();
+            scrollViewerForCanvasForStoring.Content = canvasForStoringTheHistoryOfComplitedTasks;
+            scrollViewerForCanvasForStoring.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+            scrollViewerForCanvasForStoring.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
+            scrollViewerForCanvasForStoring.HorizontalAlignment = HorizontalAlignment.Stretch;
+            scrollViewerForCanvasForStoring.VerticalAlignment = VerticalAlignment.Stretch;
+            borderAfterClickingOnComplited.Child = scrollViewerForCanvasForStoring;
 
-            
-
-            newTextBlock = AddNewTextBlock(str);
+            newTextBlock = AddNewTextBlock(stringForSavingInCanvasForStoring);
             if (newTextBlock != null )
-                canvas.Children.Add(newTextBlock);
-
-            //autoSave(filePathC);
-            //LoadCanvasData(filePathC);
+                canvasForStoringTheHistoryOfComplitedTasks.Children.Add(newTextBlock);
         }
 
         
 
-        TextBlock newTextBlock;
-        private TextBlock AddNewTextBlock(string text)
+        private TextBlock AddNewTextBlock(string stringForSaving)
         {
-            if (text == null)
+            if (stringForSaving == null)
                 return null;
 
             newTextBlock = new TextBlock
             {
                 VerticalAlignment = VerticalAlignment.Top,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Text = text,
+                Text = stringForSaving,
                 Foreground = Brushes.White,
                 FontSize = 14,
             };
@@ -668,40 +653,39 @@ namespace todoLIST
             
             add_gap_rect(80 + 41 + newTextBlock.ActualHeight);
 
-            str = null;
+            stringForSavingInCanvasForStoring = null;
             return newTextBlock;
         }
-        Button load;
-        int button_pos = 450;
+        
 
-        private void Update_Click(object sender, RoutedEventArgs e)
+        private void updateSizeButton_Click(object sender, RoutedEventArgs e)
         {
-            canvas.Height += 700;
-            button_pos += 200;
-            canvas.Children.Remove(load);
+            canvasForStoringTheHistoryOfComplitedTasks.Height += 700;
+            buttonPosition += 200;
+            canvasForStoringTheHistoryOfComplitedTasks.Children.Remove(updateSizeButton);
 
-            load.Margin = new Thickness(0, button_pos, 0, 0);
+            updateSizeButton.Margin = new Thickness(0, buttonPosition, 0, 0);
         }
 
 
         private void UpdateSizeButton()
         {
-            load = new Button();
-            load.Content = "Load more";
+            updateSizeButton = new Button();
+            updateSizeButton.Content = "Load more";
             
-            load.Height = 30;
-            load.Width = 50;
-            load.Margin = new Thickness(0, button_pos, 0, 0);
+            updateSizeButton.Height = 30;
+            updateSizeButton.Width = 50;
+            updateSizeButton.Margin = new Thickness(0, buttonPosition, 0, 0);
             
-            load.HorizontalAlignment = HorizontalAlignment.Left;
-            load.VerticalAlignment = VerticalAlignment.Bottom;
+            updateSizeButton.HorizontalAlignment = HorizontalAlignment.Left;
+            updateSizeButton.VerticalAlignment = VerticalAlignment.Bottom;
             
-            load.Background = Brushes.Green;
-            load.Foreground = Brushes.White;
+            updateSizeButton.Background = Brushes.Green;
+            updateSizeButton.Foreground = Brushes.White;
             
-            load.Click += Update_Click;
-            if (canvas.Children.Count > 10) 
-                canvas.Children.Add(load);
+            updateSizeButton.Click += updateSizeButton_Click;
+            if (canvasForStoringTheHistoryOfComplitedTasks.Children.Count > 10)
+                canvasForStoringTheHistoryOfComplitedTasks.Children.Add(updateSizeButton);
         } 
     }
 }
