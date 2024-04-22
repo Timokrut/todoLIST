@@ -43,7 +43,7 @@ namespace todoLIST
         TextBlock textBlock;
         TextBlock newTextBlock;
 
-        Canvas canvasForStoringTheHistoryOfComplitedTasks = new Canvas();
+        Canvas canvasForStoringTheHistoryOfCompletedTasks = new Canvas();
 
         string filePathC = "uielementC.json";
         string stringForSavingInCanvasForStoring;
@@ -55,6 +55,7 @@ namespace todoLIST
         double Gap_Between_Completed_Tasks;
 
         int buttonPosition = 450;
+        int countSizeCanvas = 0;
 
         // Main
         public MainWindow()
@@ -103,7 +104,7 @@ namespace todoLIST
 
             List<UICanvasData> elementCData = new List<UICanvasData>();
 
-            foreach (UIElement element in canvasForStoringTheHistoryOfComplitedTasks.Children)
+            foreach (UIElement element in canvasForStoringTheHistoryOfCompletedTasks.Children)
                 if (element is TextBlock textBlock)
                 {
                     elementCData.Add(new UICanvasData
@@ -152,7 +153,6 @@ namespace todoLIST
                     }
                 }
         }
-
         public void LoadCanvasData(string filePathC)
         {
             if (File.Exists(filePathC))
@@ -160,11 +160,14 @@ namespace todoLIST
                 string jsonString = File.ReadAllText(filePathC);
                 List<UICanvasData> elementCData = JsonConvert.DeserializeObject<List<UICanvasData>>(jsonString);
 
+                double CanvasHeight = 0;
                 Gap_Between_Completed_Tasks = 0;
                 foreach (UICanvasData data in elementCData)
                 {
                     if (!string.IsNullOrEmpty(data.Text) && data.Text.Length > 0)
                     {
+                        CanvasHeight += (data.Text.Count(x => x == '\n') > 0) ? 22.5 * data.Text.Count(x => x == '\n') : 43;
+
                         TextBlock loadTextBlockIntoCanvas = new TextBlock();
                         loadTextBlockIntoCanvas.VerticalAlignment = VerticalAlignment.Top;
                         loadTextBlockIntoCanvas.HorizontalAlignment = HorizontalAlignment.Center;
@@ -178,10 +181,10 @@ namespace todoLIST
                             Gap_Between_Completed_Tasks += loadTextBlockIntoCanvas.ActualHeight + 23;
                             add_gap_rect(Gap_Between_Completed_Tasks);
                         };
-                        canvasForStoringTheHistoryOfComplitedTasks.Children.Add(loadTextBlockIntoCanvas);
-                        UpdateSizeButton();
+                        canvasForStoringTheHistoryOfCompletedTasks.Children.Add(loadTextBlockIntoCanvas);
                     }
                 }
+                        canvasForStoringTheHistoryOfCompletedTasks.Height = CanvasHeight;
             }
         }
 
@@ -369,9 +372,11 @@ namespace todoLIST
 
                 stringForSavingInCanvasForStoring = (string)Help_Check_Box.Content;
 
+                countSizeCanvas += stringForSavingInCanvasForStoring.Count(x => x =='\n') + 1;
+
                 newTextBlock = AddNewTextBlock(stringForSavingInCanvasForStoring);
                 if (newTextBlock != null)
-                    canvasForStoringTheHistoryOfComplitedTasks.Children.Add(newTextBlock);
+                    canvasForStoringTheHistoryOfCompletedTasks.Children.Add(newTextBlock);
 
                 autoSave(filePathC);
 
@@ -495,13 +500,11 @@ namespace todoLIST
 
 
 
-        
-
         private void autoSave(string filePathC)
         {
             List<UICanvasData> elementCData = new List<UICanvasData>();
 
-            foreach (UIElement element in canvasForStoringTheHistoryOfComplitedTasks.Children)
+            foreach (UIElement element in canvasForStoringTheHistoryOfCompletedTasks.Children)
                 if (element is TextBlock Help_textBlock)
                 {
                     elementCData.Add(new UICanvasData
@@ -525,11 +528,10 @@ namespace todoLIST
                 VerticalAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(0, gap, 0, 0),
             };
-            canvasForStoringTheHistoryOfComplitedTasks.Children.Add(abbGapRectangle);
+            canvasForStoringTheHistoryOfCompletedTasks.Children.Add(abbGapRectangle);
         }
-
         
-        private void ComplitedButton_Click(object sender, RoutedEventArgs e)
+        private void CompletedButton_Click(object sender, RoutedEventArgs e)
         {
             string filePathC = "uielementC.json";
             Button button1 = (Button)sender;
@@ -572,14 +574,13 @@ namespace todoLIST
                         parentGrid.Children.Add(borderAfterClickingOnComplited);
                         if (flagAddingCanvasOnceForStoringHistiry == false)
                         {
-                            borderAfterClickingOnComplited.Child = canvasForStoringTheHistoryOfComplitedTasks;
+                            borderAfterClickingOnComplited.Child = canvasForStoringTheHistoryOfCompletedTasks;
                             flagAddingCanvasOnceForStoringHistiry = true;
                         }
                     }
                 }
                 flagForSwitchingBetweenBorders = true;
             }
-
             else
             {
                 if (parent is Grid parentGrid)
@@ -610,18 +611,18 @@ namespace todoLIST
             }
 
 
-            canvasForStoringTheHistoryOfComplitedTasks = new Canvas();
+            canvasForStoringTheHistoryOfCompletedTasks = new Canvas();
 
             LoadCanvasData(filePathC);
 
-            canvasForStoringTheHistoryOfComplitedTasks.VerticalAlignment = VerticalAlignment.Top;
+            canvasForStoringTheHistoryOfCompletedTasks.VerticalAlignment = VerticalAlignment.Top;
 
-            canvasForStoringTheHistoryOfComplitedTasks.Width = 610;
-            canvasForStoringTheHistoryOfComplitedTasks.Height = 40 * canvasForStoringTheHistoryOfComplitedTasks.Children.Count * 1.1; // TODO AUTO SIZE
-            canvasForStoringTheHistoryOfComplitedTasks.Margin = new Thickness(0, 50, 0, 0);
+            canvasForStoringTheHistoryOfCompletedTasks.Width = 610;
+
+            canvasForStoringTheHistoryOfCompletedTasks.Margin = new Thickness(0, 50, 0, 0);
 
             ScrollViewer scrollViewerForCanvasForStoring = new ScrollViewer();
-            scrollViewerForCanvasForStoring.Content = canvasForStoringTheHistoryOfComplitedTasks;
+            scrollViewerForCanvasForStoring.Content = canvasForStoringTheHistoryOfCompletedTasks;
             scrollViewerForCanvasForStoring.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
             scrollViewerForCanvasForStoring.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
             scrollViewerForCanvasForStoring.HorizontalAlignment = HorizontalAlignment.Stretch;
@@ -630,10 +631,8 @@ namespace todoLIST
 
             newTextBlock = AddNewTextBlock(stringForSavingInCanvasForStoring);
             if (newTextBlock != null )
-                canvasForStoringTheHistoryOfComplitedTasks.Children.Add(newTextBlock);
+                canvasForStoringTheHistoryOfCompletedTasks.Children.Add(newTextBlock);
         }
-
-        
 
         private TextBlock AddNewTextBlock(string stringForSaving)
         {
@@ -656,36 +655,15 @@ namespace todoLIST
             stringForSavingInCanvasForStoring = null;
             return newTextBlock;
         }
-        
 
-        private void updateSizeButton_Click(object sender, RoutedEventArgs e)
+
+        private void test(object sender, RoutedEventArgs e)
         {
-            canvasForStoringTheHistoryOfComplitedTasks.Height += 700;
-            buttonPosition += 200;
-            canvasForStoringTheHistoryOfComplitedTasks.Children.Remove(updateSizeButton);
+            CompletedSqueezed completedSqueezed = new CompletedSqueezed();
+            completedSqueezed.Show();
+            //this.Visibility = Visibility.Collapsed;
+            Close();
 
-            updateSizeButton.Margin = new Thickness(0, buttonPosition, 0, 0);
         }
-
-
-        private void UpdateSizeButton()
-        {
-            updateSizeButton = new Button();
-            updateSizeButton.Content = "Load more";
-            
-            updateSizeButton.Height = 30;
-            updateSizeButton.Width = 50;
-            updateSizeButton.Margin = new Thickness(0, buttonPosition, 0, 0);
-            
-            updateSizeButton.HorizontalAlignment = HorizontalAlignment.Left;
-            updateSizeButton.VerticalAlignment = VerticalAlignment.Bottom;
-            
-            updateSizeButton.Background = Brushes.Green;
-            updateSizeButton.Foreground = Brushes.White;
-            
-            updateSizeButton.Click += updateSizeButton_Click;
-            if (canvasForStoringTheHistoryOfComplitedTasks.Children.Count > 10)
-                canvasForStoringTheHistoryOfComplitedTasks.Children.Add(updateSizeButton);
-        } 
     }
 }
