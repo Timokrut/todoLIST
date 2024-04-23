@@ -21,7 +21,6 @@ namespace todoLIST
     public partial class CompletedSqueezed : Window
     {
 
-        string filePathC = "uielementC.json";
         public CompletedSqueezed()
         {
             InitializeComponent();
@@ -32,21 +31,9 @@ namespace todoLIST
         {
             MainWindow main = new MainWindow();
 
-
-            main.LoadCanvasData(filePathC);
-
-
             main.Show();
 
-
             Close();
-
-
-
-            
-            
-            //this.Visibility = Visibility.Visible;
-
         }
     }
 }

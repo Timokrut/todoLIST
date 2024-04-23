@@ -39,7 +39,6 @@ namespace todoLIST
         CheckBox checkBoxInCheckBoxPanel;
         Rectangle lineUnderCheckBox;
         Button submitButton;
-        Button updateSizeButton;
         TextBlock textBlock;
         TextBlock newTextBlock;
 
@@ -54,7 +53,6 @@ namespace todoLIST
 
         double Gap_Between_Completed_Tasks;
 
-        int buttonPosition = 450;
         int countSizeCanvas = 0;
 
         // Main
@@ -486,8 +484,7 @@ namespace todoLIST
 
             checkBoxInCheckBoxPanel.Checked += Is_CheckedAsync;
 
-            ChekboxPanel.Children.Add(checkBoxInCheckBoxPanel);
-
+            ChekboxPanel.Children.Add(checkBoxInCheckBoxPanel);            
             ChekboxPanel.Children.Add(lineUnderCheckBox);
 
             TextPanel.Children.Remove(submitButton);
@@ -585,7 +582,7 @@ namespace todoLIST
             {
                 if (parent is Grid parentGrid)
                 {
-                    parentGrid.Children.RemoveAt(12);//last border
+                    parentGrid.Children.RemoveAt(13);//last border
 
                     DoubleAnimation animationAppearanceCheckboxPanel = new DoubleAnimation
                     {
@@ -657,7 +654,7 @@ namespace todoLIST
         }
 
 
-        private void test(object sender, RoutedEventArgs e)
+        private void SmallWindowCreated(object sender, RoutedEventArgs e)
         {
             CompletedSqueezed completedSqueezed = new CompletedSqueezed();
             completedSqueezed.Show();

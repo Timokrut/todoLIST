@@ -14,10 +14,9 @@
         <Style TargetType="Window">
             <Setter Property="WindowChrome.WindowChrome">
                 <Setter.Value>
-                    <WindowChrome CaptionHeight="30"
+                    <WindowChrome CaptionHeight="15"
                               GlassFrameThickness="0"
-                              CornerRadius="20"
-                              ResizeBorderThickness="10"/>
+                              CornerRadius="20"/>
                 </Setter.Value>
             </Setter>
         </Style>
@@ -43,7 +42,12 @@
                         <VisualState x:Name="Normal"/>
                         <VisualState x:Name="MouseOver">
                             <Storyboard>
-                                <ColorAnimation Storyboard.TargetName="ButtonBackground" Storyboard.TargetProperty="Color" To="#5858584d" Duration="0:0:0" FillBehavior="HoldEnd"/>
+                                <ColorAnimation 
+                                    Storyboard.TargetName="ButtonBackground" 
+                                    Storyboard.TargetProperty="Color" 
+                                    To="#5858584d" 
+                                    Duration="0:0:0" 
+                                    FillBehavior="HoldEnd"/>
                             </Storyboard>
                         </VisualState>
                     </VisualStateGroup>
@@ -64,23 +68,18 @@
                 <RowDefinition Height="2*"/>
                 <RowDefinition Height="5*"/>
             </Grid.RowDefinitions>
-
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width ="2*" />
-                <ColumnDefinition />
-            </Grid.ColumnDefinitions>
             <Button 
-Template="{StaticResource testButtonTemplate2}"
-HorizontalAlignment="Right" 
-Height="25" 
-Margin="0,0,5,0" 
-VerticalAlignment="Top" 
-Width="25" 
-Click="CloseButtonClick" 
-WindowChrome.IsHitTestVisibleInChrome="True" 
-Grid.Column="1" 
-Background="Transparent" 
-BorderThickness="0">
+                Template="{StaticResource testButtonTemplate2}"
+                HorizontalAlignment="Right" 
+                Height="25" 
+                Margin="0,0,5,0" 
+                VerticalAlignment="Top" 
+                Width="25" 
+                Click="CloseButtonClick" 
+                WindowChrome.IsHitTestVisibleInChrome="True" 
+                Grid.Column="1" 
+                Background="Transparent" 
+                BorderThickness="0">        
                 <Image Source="x.png"/>
             </Button>
         </Grid>

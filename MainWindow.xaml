@@ -1,6 +1,7 @@
 ﻿<Window x:Class="todoLIST.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         Title="Todo: List" Height="600" Width="920" Icon="logoV2.ico">
 
     <Window.Style>
@@ -261,39 +262,39 @@
         </Style>
     </Window.Resources>
 
-            <Border x:Name="mainBorder" Background="#1E1E1E">
-                <Grid x:Name = "parentGrid">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width ="200" />
-                        <ColumnDefinition />
-                    </Grid.ColumnDefinitions>
+    <Border x:Name="mainBorder" Background="#1E1E1E">
+        <Grid x:Name = "parentGrid">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width ="200" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
 
 
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="32"/>
-                        <RowDefinition Height="200"/>
-                        <RowDefinition />
-                    </Grid.RowDefinitions>
-                    <Grid Background="#262626"/>
-                    <Grid Grid.Column="1" Background="#262626"/>
-                    <Grid Grid.Row="1" Background="#262626"/>
-                    <Grid Grid.Row="2" Background="#262626">
-                <Button Click ="test" Content="Button" HorizontalAlignment="Left" Height="37" Margin="50,60,0,0" VerticalAlignment="Top" Width="70"/>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="32"/>
+                <RowDefinition Height="200"/>
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Grid Background="#262626"/>
+            <Grid Grid.Column="1" Background="#262626"/>
+            <Grid Grid.Row="1" Background="#262626"/>
+            <Grid Grid.Row="2" Background="#262626">
+                
             </Grid>
 
 
             <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="2" Grid.Column="1">
-                        <StackPanel
+                <StackPanel
                             Grid.Column="1"
                             Grid.Row="2"
                             x:Name="ChekboxPanel"
                             Width="610"
                             Background="Transparent"
                             HorizontalAlignment="Center" VerticalAlignment="Top">
-                        </StackPanel>
-                    </ScrollViewer>
+                </StackPanel>
+            </ScrollViewer>
 
-                    <Border 
+            <Border 
                        Grid.Column="1"
                        BorderBrush="#FF000000"
                        BorderThickness="1"
@@ -304,7 +305,7 @@
                        Grid.Row="1"
                        CornerRadius="8" 
                        x:Name="br">
-                        <Canvas 
+                <Canvas 
                         x:Name="TextPanel" 
                         Focusable="True" 
                         Grid.Column="2" 
@@ -334,9 +335,9 @@
                         HorizontalAlignment="Center" 
                         VerticalAlignment="Top"/>
                 </Canvas>
-                    </Border>
+            </Border>
 
-                    <Button 
+            <Button 
                     Template="{StaticResource testButtonTemplate2}"
                     HorizontalAlignment="Right" 
                     Height="25" 
@@ -348,10 +349,10 @@
                     Grid.Column="1" 
                     Background="Transparent" 
                     BorderThickness="0">
-                    <Image Source="x.png"/>
-                    </Button>
+                <Image Source="x.png"/>
+            </Button>
 
-                    <Button 
+            <Button 
                     Template="{StaticResource testButtonTemplate2}"
                     HorizontalAlignment="Right" 
                     Height="25" 
@@ -363,10 +364,10 @@
                     Grid.Column="1" 
                     BorderThickness="0" 
                     Background="Transparent">
-                    <Image Source ="minus.png"/>
-                    </Button>
+                <Image Source ="minus.png"/>
+            </Button>
 
-                    <Button 
+            <Button 
                     Template="{StaticResource testButtonTemplate2}"
                     HorizontalAlignment="Right" 
                     Height="25" 
@@ -378,15 +379,15 @@
                     Grid.Column="1" 
                     Background="Transparent" 
                     BorderThickness="0">
-                    <Image Source ="maximize.png"/>
-                    </Button>
-                    <Border 
+                <Image Source ="maximize.png"/>
+            </Button>
+            <Border 
                     Grid.Row="1" 
                     Grid.Column="1" 
                     VerticalAlignment="Bottom" 
                     HorizontalAlignment="Center" 
                     CornerRadius="100">
-                        <Rectangle 
+                <Rectangle 
                         Grid.Column="1" 
                         HorizontalAlignment="Center" 
                         Height="1" 
@@ -395,10 +396,48 @@
                         VerticalAlignment="Bottom" 
                         Width="610"
                         x:Name="mainPalka"/>
-                    </Border>
+            </Border>
 
-                    <Image Source = "MainLogo.png" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,40,0,0" Height="200" Width="200" Grid.ColumnSpan="2" Grid.RowSpan="2"/>
+            <Image Source = "MainLogo.png" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,40,0,0" Height="200" Width="200" Grid.ColumnSpan="2" Grid.RowSpan="2"/>
 
+            <Button
+                Template="{StaticResource testButtonTemplate2}"
+                Name="MainButton"
+                WindowChrome.IsHitTestVisibleInChrome="True"
+                Height="35" 
+                Width="35"
+                Margin="0,0,0,0" 
+                HorizontalAlignment="Left" 
+                VerticalAlignment="Bottom">
+                <Image Source ="menu.png"/>
+                
+                <Button.ContextMenu>
+                    <ContextMenu x:Name="MainContextMenu" PlacementRectangle="{Binding RelativeSource={RelativeSource Self}}" Background="#1e1e1e" BorderBrush="#1e1e1e">
+                        <MenuItem Header="SmallApp" Click = "SmallWindowCreated" BorderThickness="0" Background="#1e1e1e" Foreground="White" />
+                        <MenuItem Header="Add" BorderThickness="0" Background="#1e1e1e" Foreground="White"/>
+                        <MenuItem Header="Settings" BorderThickness="0" Background="#1e1e1e" Foreground="White"/>
+                    </ContextMenu>
+                </Button.ContextMenu>
+
+                <Button.Triggers>
+                    <EventTrigger SourceName="MainButton" RoutedEvent="Button.Click">
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="MainContextMenu" Storyboard.TargetProperty="(ContextMenu.IsOpen)">
+                                    <DiscreteObjectKeyFrame KeyTime="0:0:0">
+                                        <DiscreteObjectKeyFrame.Value>
+                                            <sys:Boolean>True</sys:Boolean>
+                                        </DiscreteObjectKeyFrame.Value>
+                                    </DiscreteObjectKeyFrame>
+                                </ObjectAnimationUsingKeyFrames>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </Button.Triggers>
+
+            </Button>
+
+            
             <Button x:Name ="Completed"
                     Grid.Row="2"
                     Height="20" 
