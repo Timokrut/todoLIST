@@ -475,6 +475,7 @@ namespace todoLIST
                 return;
             }
 
+
             string stringForTrim = textInCheckBox.Text.Trim();
 
             textInCheckBox.Text = stringForTrim;
