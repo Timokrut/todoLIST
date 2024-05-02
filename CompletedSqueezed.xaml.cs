@@ -12,6 +12,9 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.IO;
+using Newtonsoft.Json;
+using System.Windows.Shell;
 
 namespace todoLIST
 {
@@ -20,12 +23,58 @@ namespace todoLIST
     /// </summary>
     public partial class CompletedSqueezed : Window
     {
-
         public CompletedSqueezed()
         {
             InitializeComponent();
+            this.Topmost = true;
+
+            LoadCheckBoxData();
+            
         }
 
+
+        public void LoadCheckBoxData()
+        {
+            string filePatch = "uielements.json";
+            if (!File.Exists(filePatch))
+                return;
+
+            string jsonString = File.ReadAllText(filePatch);
+            List<UIElementData> uIElementData = JsonConvert.DeserializeObject<List<UIElementData>>(jsonString);
+
+            foreach (UIElementData data in uIElementData)
+                if(!string.IsNullOrEmpty(data.Text))
+                {
+                    if(data.IsChecked.HasValue)
+                    {
+                        CheckBox helpCheckBox = new CheckBox
+                        {
+                            Content = data.Text,
+                            IsChecked = data.IsChecked.Value,
+                            Margin = new Thickness(5),
+                            FontSize = 14,
+                            Foreground = Brushes.White,
+                            VerticalAlignment = VerticalAlignment.Top,
+                            Opacity = 0.97
+                        };
+
+                        PanelForCheckBox.Children.Add(helpCheckBox);
+
+                        Rectangle lineUnderCheckBox = new Rectangle
+                        {
+                            Height = 1,
+                            Width = 350,
+                            Stroke = Brushes.Gray,
+                            HorizontalAlignment = HorizontalAlignment.Left,
+                            VerticalAlignment = VerticalAlignment.Center
+                        };
+                        PanelForCheckBox.Children.Add(lineUnderCheckBox);
+
+                        secondWindow.Height += (data.Text.Count(x => x == '\n') > 0) ? 22.5 * data.Text.Count(x => x == '\n') : 43;
+
+                    }
+                }
+        }
 
         private void CloseButtonClick(object sender, RoutedEventArgs e)
         {
@@ -35,5 +84,11 @@ namespace todoLIST
 
             Close();
         }
+
+        private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            secondWindow.Opacity = e.NewValue;
+        }
+
     }
 }

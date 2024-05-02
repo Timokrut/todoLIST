@@ -415,7 +415,7 @@
                     <ContextMenu x:Name="MainContextMenu" PlacementRectangle="{Binding RelativeSource={RelativeSource Self}}" Background="#1e1e1e" BorderBrush="#1e1e1e">
                         <MenuItem Header="SmallApp" Click = "SmallWindowCreated" BorderThickness="0" Background="#1e1e1e" Foreground="White" />
                         <MenuItem Header="Add" BorderThickness="0" Background="#1e1e1e" Foreground="White"/>
-                        <MenuItem Header="Settings" BorderThickness="0" Background="#1e1e1e" Foreground="White"/>
+                        <MenuItem Header="Settings" Click="SettingsProgram" BorderThickness="0" Background="#1e1e1e" Foreground="White"/>
                     </ContextMenu>
                 </Button.ContextMenu>
 

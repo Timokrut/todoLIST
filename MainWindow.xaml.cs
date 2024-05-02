@@ -45,6 +45,7 @@ namespace todoLIST
         Canvas canvasForStoringTheHistoryOfCompletedTasks = new Canvas();
 
         string filePathC = "uielementC.json";
+        string filePath = "uielements.json";
         string stringForSavingInCanvasForStoring;
 
         bool flagFullScrean = false;
@@ -80,7 +81,7 @@ namespace todoLIST
             this.Closed += Window_Closed;
         }
 
-        public  void SaveData(string filePath, string filePathC)
+        public void SaveData(string filePath, string filePathC)
         {
             List<UIElementData> elementsData = new List<UIElementData>();
 
@@ -195,8 +196,8 @@ namespace todoLIST
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            string filePath = "uielements.json";
-            string filePathC = "uielementC.json";
+            
+            //string filePathC = "uielementC.json";
             SaveData(filePath, filePathC);
         }
 
@@ -643,6 +644,7 @@ namespace todoLIST
                 Text = stringForSaving,
                 Foreground = Brushes.White,
                 FontSize = 14,
+                
             };
 
             newTextBlock.Margin = new Thickness(0, 80 + 11, 0, 0);
@@ -656,11 +658,116 @@ namespace todoLIST
 
         private void SmallWindowCreated(object sender, RoutedEventArgs e)
         {
+            SaveData(filePath, filePathC);
             CompletedSqueezed completedSqueezed = new CompletedSqueezed();
+
+
+
             completedSqueezed.Show();
             //this.Visibility = Visibility.Collapsed;
             Close();
 
         }
+
+        bool flagForSwitchingBetweenBorderss = false;
+
+        private void SettingsProgram(object sender, RoutedEventArgs e)
+        {
+            // Создаем новую переменную для `MenuItem`
+            MenuItem button1 = sender as MenuItem;
+
+            // Создаем новую переменную для `Grid`
+            Grid parentGrid;
+
+            // Определяем родительский Grid
+            DependencyObject parent = button1.Parent;
+            while (parent != null && !(parent is Grid))
+            {
+                parent = VisualTreeHelper.GetParent(parent);
+            }
+            parentGrid = parent as Grid;
+
+            // Проверяем состояние флага
+            if (flagForSwitchingBetweenBorders == false)
+            {
+                // Создаем новый Border
+                Border borderAfterClickingOnComplited = new Border
+                {
+                    Background = new SolidColorBrush(Color.FromRgb(30, 30, 30)),
+                    Opacity = 0 // Начальная прозрачность
+                };
+
+                // Устанавливаем его расположение в `Grid`
+                Grid.SetColumn(borderAfterClickingOnComplited, 1);
+                Grid.SetRow(borderAfterClickingOnComplited, 1);
+                Grid.SetRowSpan(borderAfterClickingOnComplited, 2);
+
+                // Добавляем Border в `Grid`
+                parentGrid.Children.Add(borderAfterClickingOnComplited);
+
+                // Добавляем содержимое в Border (только в первый раз)
+                if (!flagAddingCanvasOnceForStoringHistiry)
+                {
+                    borderAfterClickingOnComplited.Child = canvasForStoringTheHistoryOfCompletedTasks;
+                    flagAddingCanvasOnceForStoringHistiry = true;
+                }
+
+                // Настройка и запуск анимации появления
+                DoubleAnimation animationAppearanceBorderAfterCkick = new DoubleAnimation
+                {
+                    From = 0,
+                    To = 1,
+                    Duration = TimeSpan.FromSeconds(0.15),
+                    AutoReverse = false,
+                    FillBehavior = FillBehavior.HoldEnd
+                };
+
+                Storyboard appearanceBorderAfterCkickStoryboard = new Storyboard();
+                appearanceBorderAfterCkickStoryboard.Children.Add(animationAppearanceBorderAfterCkick);
+                Storyboard.SetTarget(animationAppearanceBorderAfterCkick, borderAfterClickingOnComplited);
+                Storyboard.SetTargetProperty(animationAppearanceBorderAfterCkick, new PropertyPath(UIElement.OpacityProperty));
+
+                // Запуск анимации
+                appearanceBorderAfterCkickStoryboard.Begin(borderAfterClickingOnComplited);
+
+                // Обновление флага
+                flagForSwitchingBetweenBorders = true;
+            }
+            else
+            {
+                // Удаление Border и запуск другой анимации
+                if (parentGrid != null)
+                {
+                    if (parentGrid.Children.Count > 0)
+                    {
+                        // Удаляем Border (проверьте, что вы удаляете нужный Border)
+                        parentGrid.Children.RemoveAt(parentGrid.Children.Count - 1);
+
+                        // Настройка и запуск анимации для `ChekboxPanel`
+                        DoubleAnimation animationAppearanceCheckboxPanel = new DoubleAnimation
+                        {
+                            From = 0,
+                            To = 1,
+                            Duration = TimeSpan.FromSeconds(0.3),
+                            AutoReverse = false,
+                            FillBehavior = FillBehavior.HoldEnd,
+                            EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseInOut }
+                        };
+
+                        Storyboard appearanceCheckboxPanelStoryboard = new Storyboard();
+                        appearanceCheckboxPanelStoryboard.Children.Add(animationAppearanceCheckboxPanel);
+                        Storyboard.SetTarget(animationAppearanceCheckboxPanel, ChekboxPanel);
+                        Storyboard.SetTargetProperty(animationAppearanceCheckboxPanel, new PropertyPath(UIElement.OpacityProperty));
+
+                        // Запуск анимации
+                        appearanceCheckboxPanelStoryboard.Begin(ChekboxPanel);
+                    }
+                }
+
+                // Обновление флага
+                flagForSwitchingBetweenBorders = false;
+            }
+        }
+
     }
 }
