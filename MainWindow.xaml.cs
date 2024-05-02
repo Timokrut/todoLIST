@@ -42,6 +42,11 @@ namespace todoLIST
         TextBlock textBlock;
         TextBlock newTextBlock;
 
+        ComboBox choose_theme;
+        Border border;
+        Canvas canvas;
+        bool menu_settings = false;
+
         Canvas canvasForStoringTheHistoryOfCompletedTasks = new Canvas();
 
         string filePathC = "uielementC.json";
@@ -77,6 +82,9 @@ namespace todoLIST
             Completed.Background = new SolidColorBrush(Color.FromArgb(200, 123, 124, 129));
             LoadData(filePath);
             LoadCanvasData(filePathC);
+
+            
+
 
             this.Closed += Window_Closed;
         }
@@ -135,8 +143,11 @@ namespace todoLIST
                             IsChecked = data.IsChecked.Value,
                             Margin = new Thickness(5),
                             FontSize = 14,
-                            Foreground = Brushes.White
+                            //Foreground = Brushes.White
                         };
+
+                        Style textInCheckBoxxStyle = System.Windows.Application.Current.FindResource("textInCheckBoxxStyle") as Style;
+                        checkBox.Style = textInCheckBoxxStyle;
 
                         checkBox.Checked += Is_CheckedAsync;
                         ChekboxPanel.Children.Add(checkBox);
@@ -183,7 +194,7 @@ namespace todoLIST
                         canvasForStoringTheHistoryOfCompletedTasks.Children.Add(loadTextBlockIntoCanvas);
                     }
                 }
-                        canvasForStoringTheHistoryOfCompletedTasks.Height = CanvasHeight;
+                canvasForStoringTheHistoryOfCompletedTasks.Height = CanvasHeight;
             }
         }
 
@@ -196,7 +207,7 @@ namespace todoLIST
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            
+
             //string filePathC = "uielementC.json";
             SaveData(filePath, filePathC);
         }
@@ -260,13 +271,21 @@ namespace todoLIST
             textInCheckBoxTemplate.VisualTree = borderForTextInCheckBox;
             textInCheckBox.Template = textInCheckBoxTemplate;
 
+            Style textInCheckBoxStyle = System.Windows.Application.Current.TryFindResource("textInCheckBoxStyle") as Style;
+
+            // Применение стиля к элементу управления
+            textInCheckBox.Style = textInCheckBoxStyle;
+
+
+            //textInCheckBox.Style = textInCheckBoxStyle;
+
             textInCheckBox.Text += "Wtrite Somesthing";
-            
+
 
             textInCheckBox.KeyDown += textInCheckBox_KeyDown;
             textInCheckBox.GotFocus += clickOnTextInCheckBox;
-            
-            
+
+
 
             submitButton = new Button();
             ControlTemplate submitButtonTemplate = new ControlTemplate(typeof(Button));
@@ -284,7 +303,7 @@ namespace todoLIST
             submitButton.Click += Submit_CLick;
             TextPanel.Children.Add(submitButton);
 
-            submitButton.Content = "  Submit";    
+            submitButton.Content = "  Submit";
 
             TextPanel.Children.Add(textInCheckBox);
 
@@ -336,23 +355,23 @@ namespace todoLIST
 
             submitButton.Background = Brushes.Green;
             submitButton.Foreground = Brushes.White;
-           
+
             Canvas.SetLeft(textInCheckBox, 174);
             Canvas.SetTop(textInCheckBox, 0);
 
             textInCheckBox.Height = 67;
             textInCheckBox.Width = 428;
 
-            textInCheckBox.Background = new SolidColorBrush(Color.FromArgb(255, 38, 38, 38));
+            //textInCheckBox.Background = new SolidColorBrush(Color.FromArgb(255, 38, 38, 38));
             textInCheckBox.FontSize = 14;
-            textInCheckBox.Foreground = new SolidColorBrush(Color.FromRgb(94, 94, 94));
+            //textInCheckBox.Foreground = new SolidColorBrush(Color.FromRgb(94, 94, 94));
             textInCheckBox.FontFamily = new FontFamily("Aerial");
             textInCheckBox.BorderThickness = new Thickness(0, 0, 0, 0);
 
             customizeCheckBox();
             // End Customization
         }
-        
+
 
         private void customizeCheckBox()
         {
@@ -365,13 +384,13 @@ namespace todoLIST
 
         private async void Is_CheckedAsync(object sender, RoutedEventArgs e)
         {
-            if (sender is CheckBox Help_Check_Box && Help_Check_Box.IsChecked == true )
+            if (sender is CheckBox Help_Check_Box && Help_Check_Box.IsChecked == true)
             {
                 Help_Check_Box.IsEnabled = false;
 
                 stringForSavingInCanvasForStoring = (string)Help_Check_Box.Content;
 
-                countSizeCanvas += stringForSavingInCanvasForStoring.Count(x => x =='\n') + 1;
+                countSizeCanvas += stringForSavingInCanvasForStoring.Count(x => x == '\n') + 1;
 
                 newTextBlock = AddNewTextBlock(stringForSavingInCanvasForStoring);
                 if (newTextBlock != null)
@@ -389,7 +408,7 @@ namespace todoLIST
                 await Task.Delay(1000);
 
                 int index = ChekboxPanel.Children.IndexOf(Help_Check_Box);
-                ChekboxPanel.Children.RemoveAt(index+1);
+                ChekboxPanel.Children.RemoveAt(index + 1);
 
                 DoubleAnimation widthAnimation = new DoubleAnimation
                 {
@@ -442,7 +461,7 @@ namespace todoLIST
 
             textInCheckBox.Text = "";
 
-            textInCheckBox.Foreground = Brushes.White;
+            //textInCheckBox.Foreground = Brushes.White;
         }
 
         private void textInCheckBox_KeyDown(object sender, KeyEventArgs e)
@@ -456,7 +475,7 @@ namespace todoLIST
                     Help_textBox.Text = Help_textBox.Text.Insert(caretPosition, "\n");
                     Help_textBox.CaretIndex = caretPosition + 1;
                 }
-                
+
                 e.Handled = true;
             }
 
@@ -485,7 +504,7 @@ namespace todoLIST
 
             checkBoxInCheckBoxPanel.Checked += Is_CheckedAsync;
 
-            ChekboxPanel.Children.Add(checkBoxInCheckBoxPanel);            
+            ChekboxPanel.Children.Add(checkBoxInCheckBoxPanel);
             ChekboxPanel.Children.Add(lineUnderCheckBox);
 
             TextPanel.Children.Remove(submitButton);
@@ -516,7 +535,6 @@ namespace todoLIST
 
         private void add_gap_rect(double gap)
         {
-
             Rectangle abbGapRectangle = new Rectangle
             {
                 Height = 1,
@@ -528,15 +546,15 @@ namespace todoLIST
             };
             canvasForStoringTheHistoryOfCompletedTasks.Children.Add(abbGapRectangle);
         }
-        
+
         private void CompletedButton_Click(object sender, RoutedEventArgs e)
         {
             string filePathC = "uielementC.json";
             Button button1 = (Button)sender;
-            
+
             DependencyObject parent = button1.Parent;
             Border borderAfterClickingOnComplited = new Border();
-            
+
             if (flagForSwitchingBetweenBorders == false)
             {
                 Grid.SetColumn(borderAfterClickingOnComplited, 1);
@@ -628,7 +646,7 @@ namespace todoLIST
             borderAfterClickingOnComplited.Child = scrollViewerForCanvasForStoring;
 
             newTextBlock = AddNewTextBlock(stringForSavingInCanvasForStoring);
-            if (newTextBlock != null )
+            if (newTextBlock != null)
                 canvasForStoringTheHistoryOfCompletedTasks.Children.Add(newTextBlock);
         }
 
@@ -644,11 +662,11 @@ namespace todoLIST
                 Text = stringForSaving,
                 Foreground = Brushes.White,
                 FontSize = 14,
-                
+
             };
 
             newTextBlock.Margin = new Thickness(0, 80 + 11, 0, 0);
-            
+
             add_gap_rect(80 + 41 + newTextBlock.ActualHeight);
 
             stringForSavingInCanvasForStoring = null;
@@ -668,106 +686,106 @@ namespace todoLIST
             Close();
 
         }
-
-        bool flagForSwitchingBetweenBorderss = false;
+        
 
         private void SettingsProgram(object sender, RoutedEventArgs e)
         {
-            // Создаем новую переменную для `MenuItem`
-            MenuItem button1 = sender as MenuItem;
 
-            // Создаем новую переменную для `Grid`
-            Grid parentGrid;
-
-            // Определяем родительский Grid
-            DependencyObject parent = button1.Parent;
-            while (parent != null && !(parent is Grid))
+            if (menu_settings == false)
             {
-                parent = VisualTreeHelper.GetParent(parent);
-            }
-            parentGrid = parent as Grid;
-
-            // Проверяем состояние флага
-            if (flagForSwitchingBetweenBorders == false)
-            {
-                // Создаем новый Border
-                Border borderAfterClickingOnComplited = new Border
+                border = new Border
                 {
                     Background = new SolidColorBrush(Color.FromRgb(30, 30, 30)),
-                    Opacity = 0 // Начальная прозрачность
                 };
 
-                // Устанавливаем его расположение в `Grid`
-                Grid.SetColumn(borderAfterClickingOnComplited, 1);
-                Grid.SetRow(borderAfterClickingOnComplited, 1);
-                Grid.SetRowSpan(borderAfterClickingOnComplited, 2);
-
-                // Добавляем Border в `Grid`
-                parentGrid.Children.Add(borderAfterClickingOnComplited);
-
-                // Добавляем содержимое в Border (только в первый раз)
-                if (!flagAddingCanvasOnceForStoringHistiry)
+                Grid.SetColumn(border, 1);
+                Grid.SetRow(border, 1);
+                Grid.SetRowSpan(border, 2);
+                
+                parentGrid.Children.Add(border);
+                canvas = new Canvas
                 {
-                    borderAfterClickingOnComplited.Child = canvasForStoringTheHistoryOfCompletedTasks;
-                    flagAddingCanvasOnceForStoringHistiry = true;
-                }
-
-                // Настройка и запуск анимации появления
-                DoubleAnimation animationAppearanceBorderAfterCkick = new DoubleAnimation
-                {
-                    From = 0,
-                    To = 1,
-                    Duration = TimeSpan.FromSeconds(0.15),
-                    AutoReverse = false,
-                    FillBehavior = FillBehavior.HoldEnd
+                    Background = Brushes.Transparent,
+                    Margin = new Thickness(20, 40, 0, 0)
                 };
-
-                Storyboard appearanceBorderAfterCkickStoryboard = new Storyboard();
-                appearanceBorderAfterCkickStoryboard.Children.Add(animationAppearanceBorderAfterCkick);
-                Storyboard.SetTarget(animationAppearanceBorderAfterCkick, borderAfterClickingOnComplited);
-                Storyboard.SetTargetProperty(animationAppearanceBorderAfterCkick, new PropertyPath(UIElement.OpacityProperty));
-
-                // Запуск анимации
-                appearanceBorderAfterCkickStoryboard.Begin(borderAfterClickingOnComplited);
-
-                // Обновление флага
-                flagForSwitchingBetweenBorders = true;
+                border.Child = canvas;
+                menu_settings = true;
             }
             else
             {
-                // Удаление Border и запуск другой анимации
-                if (parentGrid != null)
+                parentGrid.Children.RemoveAt(13);
+                menu_settings = false;
+                //Style textInCheckBoxxStyle = System.Windows.Application.Current.FindResource("textInCheckBoxxStyle") as Style;
+                //checkBoxInCheckBoxPanel.Style = textInCheckBoxxStyle;
+                Style textInCheckBoxxStyle = System.Windows.Application.Current.TryFindResource("textInCheckBoxxStyle") as Style;
+                foreach (var element in ChekboxPanel.Children)
                 {
-                    if (parentGrid.Children.Count > 0)
+                    if (element is CheckBox checkBox)
                     {
-                        // Удаляем Border (проверьте, что вы удаляете нужный Border)
-                        parentGrid.Children.RemoveAt(parentGrid.Children.Count - 1);
-
-                        // Настройка и запуск анимации для `ChekboxPanel`
-                        DoubleAnimation animationAppearanceCheckboxPanel = new DoubleAnimation
-                        {
-                            From = 0,
-                            To = 1,
-                            Duration = TimeSpan.FromSeconds(0.3),
-                            AutoReverse = false,
-                            FillBehavior = FillBehavior.HoldEnd,
-                            EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseInOut }
-                        };
-
-                        Storyboard appearanceCheckboxPanelStoryboard = new Storyboard();
-                        appearanceCheckboxPanelStoryboard.Children.Add(animationAppearanceCheckboxPanel);
-                        Storyboard.SetTarget(animationAppearanceCheckboxPanel, ChekboxPanel);
-                        Storyboard.SetTargetProperty(animationAppearanceCheckboxPanel, new PropertyPath(UIElement.OpacityProperty));
-
-                        // Запуск анимации
-                        appearanceCheckboxPanelStoryboard.Begin(ChekboxPanel);
+                        checkBox.Style = textInCheckBoxxStyle;
                     }
                 }
-
-                // Обновление флага
-                flagForSwitchingBetweenBorders = false;
             }
+
+            Label label = new Label
+            {
+                Content = "Settings",
+                FontSize = 30,
+                Background = Brushes.Transparent,
+                Foreground = Brushes.White,
+                Margin = new Thickness(35, 2, 0, 0)
+            };
+            canvas.Children.Add(label);
+
+            TextBlock theme = new TextBlock
+            {
+                Text = "Theme",
+                FontSize = 15,
+                Background = Brushes.Transparent,
+                Margin = new Thickness(40, 90, 0, 0), 
+                Foreground = Brushes.White
+            };
+            canvas.Children.Add(theme);
+
+            choose_theme = new ComboBox
+            {
+                Margin = new Thickness(150, 90, 0, 0),
+                Background = Brushes.Red,
+                Foreground = Brushes.Black,
+                Width = 100,
+            };
+            //choose_theme.Items.Add("Black");
+            //choose_theme.Items.Add("White");
+            //choose_theme.Text = "Black";
+
+            //choose_theme.SelectionChanged += changeItem;
+
+            List<string> styles = new List<string> { "light", "Black" };
+            choose_theme.SelectionChanged += changeItem;
+            choose_theme.ItemsSource = styles;
+            //choose_theme.SelectedValue = 1;
+            //choose_theme.SelectedItem = "Black";
+
+            canvas.Children.Add(choose_theme);
         }
 
+        private void changeItem(object sender, SelectionChangedEventArgs e)
+        {
+            string style = choose_theme.SelectedItem as string;
+            var uri = new Uri(style + ".xaml", UriKind.Relative);
+            ResourceDictionary resourceDict = System.Windows.Application.LoadComponent(uri) as ResourceDictionary;
+
+            // Очищаем только пользовательские ресурсы
+            foreach (var mergedDict in System.Windows.Application.Current.Resources.MergedDictionaries.ToList())
+            {
+                if (mergedDict.Source != null && mergedDict.Source.OriginalString.StartsWith("todoLIST"))
+                {
+                    System.Windows.Application.Current.Resources.MergedDictionaries.Remove(mergedDict);
+                }
+            }
+
+            // Добавляем новый словарь ресурсов
+            System.Windows.Application.Current.Resources.MergedDictionaries.Add(resourceDict);
+        }
     }
 }
