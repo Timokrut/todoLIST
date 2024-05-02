@@ -283,15 +283,16 @@
             </Grid>
 
 
-            <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="2" Grid.Column="1">
-                <StackPanel
+            <ScrollViewer x:Name="ScrollMain" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" VerticalScrollBarVisibility="Auto" Grid.Row="2" Grid.Column="1">
+                <Canvas
+                            Height = "0"
                             Grid.Column="1"
                             Grid.Row="2"
                             x:Name="ChekboxPanel"
                             Width="610"
                             Background="Transparent"
                             HorizontalAlignment="Center" VerticalAlignment="Top">
-                </StackPanel>
+                </Canvas>
             </ScrollViewer>
 
             <Border 

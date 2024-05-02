@@ -54,6 +54,7 @@ namespace todoLIST
         double Gap_Between_Completed_Tasks;
 
         int countSizeCanvas = 0;
+        double height = 0;
 
         // Main
         public MainWindow()
@@ -136,18 +137,27 @@ namespace todoLIST
                             FontSize = 14,
                             Foreground = Brushes.White
                         };
-
                         checkBox.Checked += Is_CheckedAsync;
+
+                        height += 6;
+                        ChekboxPanel.Height = height;
+
+                        checkBox.Margin = new Thickness(0, height, 0, 0);
+
+                        height += (data.Text.Count(x => x == '\n') > 0) ? 22.5 * data.Text.Count(x => x == '\n') : 35;
+                        
                         ChekboxPanel.Children.Add(checkBox);
-                        lineUnderCheckBox = new Rectangle
+                        
+                        Rectangle abbGapRectangle = new Rectangle
                         {
                             Height = 1,
                             Width = 610,
                             Stroke = Brushes.Gray,
                             HorizontalAlignment = HorizontalAlignment.Center,
-                            VerticalAlignment = VerticalAlignment.Center
+                            VerticalAlignment = VerticalAlignment.Center,
+                            Margin = new Thickness(0, height, 0, 0),
                         };
-                        ChekboxPanel.Children.Add(lineUnderCheckBox);
+                        ChekboxPanel.Children.Add(abbGapRectangle);
                     }
                 }
         }
@@ -357,7 +367,7 @@ namespace todoLIST
         {
             Grid.SetRow(checkBoxInCheckBoxPanel, 2);
             Grid.SetColumn(checkBoxInCheckBoxPanel, 1);
-            checkBoxInCheckBoxPanel.Margin = new Thickness(5);
+            //checkBoxInCheckBoxPanel.Margin = new Thickness(5);
             checkBoxInCheckBoxPanel.FontSize = 14;
             checkBoxInCheckBoxPanel.Foreground = Brushes.White;
         }
@@ -429,9 +439,45 @@ namespace todoLIST
 
                 checkBoxStoryboard.Begin(Help_Check_Box);
 
+                 
                 await Task.Delay(490);
 
                 ChekboxPanel.Children.Remove(Help_Check_Box);
+                double change = 0;
+                double u = 0;
+                for (int i = 0; i < ChekboxPanel.Children.Count; i++)
+                {
+                    if(i%2 == 0 && i != 0)
+                    {
+                        u += (textBlock.Text.Count(x => x == '\n') > 0) ? 22.5 * textBlock.Text.Count(x => x == '\n') : 35;
+                        change = u;
+                    }
+                    
+                    if(index == i)
+                    {
+                        bool flag = false;
+                        for (int j = i; j < ChekboxPanel.Children.Count ; j+=2)
+                        {
+                            if (flag == true)
+                                u += 6;
+                            CheckBox b = (CheckBox)ChekboxPanel.Children[j];
+                            b.Margin = new Thickness(0, u + 18, 0, 0);
+                            u += (textBlock.Text.Count(x => x == '\n') > 0) ? 22.5 * textBlock.Text.Count(x => x == '\n') : 35;
+                            
+                            flag = true;
+                            Rectangle p = (Rectangle)ChekboxPanel.Children[j + 1];
+                            p.Margin = new Thickness(0, u + 18, 0, 0);
+                            
+                        }
+                        break;
+                    }
+                }
+                height -= change;
+                
+                
+                
+
+
             }
         }
 
@@ -467,6 +513,8 @@ namespace todoLIST
         private void Submit_CLick(object sender, RoutedEventArgs e)
             => endText();
 
+
+        
         private void endText()
         {
             if (textInCheckBox.Text.Length == 0)
@@ -474,19 +522,32 @@ namespace todoLIST
                 textInCheckBox.Text = "Looks like you forget to write something smart. Try again!";
                 return;
             }
-
-
-            string stringForTrim = textInCheckBox.Text.Trim();
-
-            textInCheckBox.Text = stringForTrim;
+            height += 6;
+            ChekboxPanel.Height = height;
+            
+            textInCheckBox.Text.Trim();
 
             checkBoxInCheckBoxPanel.Content = textInCheckBox.Text;
             TextPanel.Children.Remove(textInCheckBox);
 
             checkBoxInCheckBoxPanel.Checked += Is_CheckedAsync;
 
-            ChekboxPanel.Children.Add(checkBoxInCheckBoxPanel);            
-            ChekboxPanel.Children.Add(lineUnderCheckBox);
+            ChekboxPanel.Children.Add(checkBoxInCheckBoxPanel);
+
+            checkBoxInCheckBoxPanel.Margin = new Thickness(0, height, 0, 0);
+
+            height += (textInCheckBox.Text.Count(x => x == '\n') > 0) ? 22.5 * textInCheckBox.Text.Count(x => x == '\n') : 35;
+
+            Rectangle abbGapRectangle = new Rectangle
+            {
+                Height = 1,
+                Width = 610,
+                Stroke = Brushes.Gray,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(0, height, 0, 0),
+            };
+            ChekboxPanel.Children.Add(abbGapRectangle);
 
             TextPanel.Children.Remove(submitButton);
             NewTask.Visibility = Visibility.Visible;
@@ -661,7 +722,6 @@ namespace todoLIST
             completedSqueezed.Show();
             //this.Visibility = Visibility.Collapsed;
             Close();
-
         }
     }
 }
