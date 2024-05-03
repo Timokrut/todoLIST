@@ -53,10 +53,13 @@ namespace todoLIST
                             IsChecked = data.IsChecked.Value,
                             Margin = new Thickness(5),
                             FontSize = 14,
-                            Foreground = Brushes.White,
+                            //Foreground = Brushes.White,
                             VerticalAlignment = VerticalAlignment.Top,
                             Opacity = 0.97
                         };
+
+                        Style textInCheckBoxxStyle = System.Windows.Application.Current.FindResource("textInCheckBoxxStyle") as Style;
+                        helpCheckBox.Style = textInCheckBoxxStyle;
 
                         PanelForCheckBox.Children.Add(helpCheckBox);
 
@@ -64,12 +67,14 @@ namespace todoLIST
                         {
                             Height = 1,
                             Width = 350,
-                            Stroke = Brushes.Gray,
+                            //Stroke = Brushes.Gray,
                             HorizontalAlignment = HorizontalAlignment.Left,
                             VerticalAlignment = VerticalAlignment.Center
                         };
+                        Style RectangleStyle = System.Windows.Application.Current.TryFindResource("RectangleStyle") as Style;
+                        lineUnderCheckBox.Style = RectangleStyle;
+                        
                         PanelForCheckBox.Children.Add(lineUnderCheckBox);
-
                         secondWindow.Height += (data.Text.Count(x => x == '\n') > 0) ? 22.5 * data.Text.Count(x => x == '\n') : 43;
 
                     }

@@ -24,6 +24,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Media.TextFormatting;
 using System.CodeDom;
 using todoLIST;
+using System.Windows.Controls.Primitives;
 
 namespace todoLIST
 {
@@ -69,7 +70,7 @@ namespace todoLIST
             string filePath = "uielements.json";
             ControlTemplate templateOfButtonComplited = new ControlTemplate(typeof(Button));
             FrameworkElementFactory borderOfButtonComplited = new FrameworkElementFactory(typeof(Border));
-            borderOfButtonComplited.SetValue(Border.CornerRadiusProperty, new CornerRadius(10));
+            borderOfButtonComplited.SetValue(Border.CornerRadiusProperty, new CornerRadius(8));
             borderOfButtonComplited.SetValue(Border.BackgroundProperty, new TemplateBindingExtension(Control.BackgroundProperty));
             borderOfButtonComplited.AppendChild(new FrameworkElementFactory(typeof(ContentPresenter))
             {
@@ -79,7 +80,7 @@ namespace todoLIST
 
             Completed.Content = " Completed";
             Completed.Template = templateOfButtonComplited;
-            Completed.Background = new SolidColorBrush(Color.FromArgb(200, 123, 124, 129));
+            //Completed.Background = new SolidColorBrush(Color.FromArgb(200, 123, 124, 129));
             LoadData(filePath);
             LoadCanvasData(filePathC);
 
@@ -155,10 +156,12 @@ namespace todoLIST
                         {
                             Height = 1,
                             Width = 610,
-                            Stroke = Brushes.Gray,
+                            //Stroke = Brushes.Gray,
                             HorizontalAlignment = HorizontalAlignment.Center,
                             VerticalAlignment = VerticalAlignment.Center
                         };
+                        Style RectangleStyle = System.Windows.Application.Current.TryFindResource("RectangleStyle") as Style;
+                        lineUnderCheckBox.Style = RectangleStyle;
                         ChekboxPanel.Children.Add(lineUnderCheckBox);
                     }
                 }
@@ -182,8 +185,11 @@ namespace todoLIST
                         loadTextBlockIntoCanvas.VerticalAlignment = VerticalAlignment.Top;
                         loadTextBlockIntoCanvas.HorizontalAlignment = HorizontalAlignment.Center;
                         loadTextBlockIntoCanvas.Text = data.Text;
-                        loadTextBlockIntoCanvas.Foreground = Brushes.White;
+                        //loadTextBlockIntoCanvas.Foreground = Brushes.White;
                         loadTextBlockIntoCanvas.FontSize = 14;
+
+                        Style textInTextBlockStyle = System.Windows.Application.Current.TryFindResource("textInTextBlockStyle") as Style;
+                        loadTextBlockIntoCanvas.Style = textInTextBlockStyle;
 
                         loadTextBlockIntoCanvas.Loaded += (sender, e) =>
                         {
@@ -342,7 +348,9 @@ namespace todoLIST
 
             lineUnderCheckBox.Height = 1;
             lineUnderCheckBox.Width = 610;
-            lineUnderCheckBox.Stroke = Brushes.Gray;
+            //lineUnderCheckBox.Stroke = Brushes.Gray;
+            Style RectangleStyle = System.Windows.Application.Current.TryFindResource("RectangleStyle") as Style;
+            lineUnderCheckBox.Style = RectangleStyle;
             lineUnderCheckBox.HorizontalAlignment = HorizontalAlignment.Center;
             lineUnderCheckBox.VerticalAlignment = VerticalAlignment.Center;
 
@@ -561,7 +569,9 @@ namespace todoLIST
                 Grid.SetRow(borderAfterClickingOnComplited, 1);
                 Grid.SetRowSpan(borderAfterClickingOnComplited, 2);
 
-                borderAfterClickingOnComplited.Background = new SolidColorBrush(Color.FromRgb(30, 30, 30));
+                //borderAfterClickingOnComplited.Background = new SolidColorBrush(Color.FromRgb(30, 30, 30));
+                Style BorderMain = System.Windows.Application.Current.TryFindResource("BorderMain") as Style;
+                borderAfterClickingOnComplited.Style = BorderMain;
 
                 Button button = sender as Button;
                 if (button != null)
@@ -686,17 +696,18 @@ namespace todoLIST
             Close();
 
         }
-        
-
+        Label label;
+        TextBlock theme;
         private void SettingsProgram(object sender, RoutedEventArgs e)
         {
 
             if (menu_settings == false)
             {
-                border = new Border
-                {
-                    Background = new SolidColorBrush(Color.FromRgb(30, 30, 30)),
-                };
+                border = new Border();
+
+                Style BorderMain = System.Windows.Application.Current.TryFindResource("BorderMain") as Style;
+                border.Style = BorderMain;
+
 
                 Grid.SetColumn(border, 1);
                 Grid.SetRow(border, 1);
@@ -727,36 +738,45 @@ namespace todoLIST
                 }
             }
 
-            Label label = new Label
+            label = new Label
             {
                 Content = "Settings",
                 FontSize = 30,
                 Background = Brushes.Transparent,
-                Foreground = Brushes.White,
+                //Foreground = Brushes.White,
                 Margin = new Thickness(35, 2, 0, 0)
             };
+
+            Style LableStyle = System.Windows.Application.Current.TryFindResource("LableStyle") as Style;
+            label.Style = LableStyle;
+
             canvas.Children.Add(label);
 
-            TextBlock theme = new TextBlock
+            theme = new TextBlock
             {
                 Text = "Theme",
                 FontSize = 15,
                 Background = Brushes.Transparent,
                 Margin = new Thickness(40, 90, 0, 0), 
-                Foreground = Brushes.White
+                //Foreground = Brushes.White
             };
+            Style textInTextBlockStyle = System.Windows.Application.Current.TryFindResource("textInTextBlockStyle") as Style;
+            theme.Style = textInTextBlockStyle;
             canvas.Children.Add(theme);
 
             choose_theme = new ComboBox
             {
                 Margin = new Thickness(150, 90, 0, 0),
-                Background = Brushes.Red,
-                Foreground = Brushes.Black,
+                //Background = Brushes.Green,
+                //Foreground = Brushes.Black,
                 Width = 100,
             };
             //choose_theme.Items.Add("Black");
             //choose_theme.Items.Add("White");
             //choose_theme.Text = "Black";
+
+            Style ComboBoxStyle = System.Windows.Application.Current.TryFindResource("ComboBoxStyle") as Style;
+            choose_theme.Style = ComboBoxStyle;
 
             //choose_theme.SelectionChanged += changeItem;
 
@@ -764,7 +784,7 @@ namespace todoLIST
             choose_theme.SelectionChanged += changeItem;
             choose_theme.ItemsSource = styles;
             //choose_theme.SelectedValue = 1;
-            //choose_theme.SelectedItem = "Black";
+            
 
             canvas.Children.Add(choose_theme);
         }
@@ -786,6 +806,14 @@ namespace todoLIST
 
             // Добавляем новый словарь ресурсов
             System.Windows.Application.Current.Resources.MergedDictionaries.Add(resourceDict);
+            Style BorderMain = System.Windows.Application.Current.TryFindResource("BorderMain") as Style;
+            Style LableStyle = System.Windows.Application.Current.TryFindResource("LableStyle") as Style;
+            Style textInTextBlockStyle = System.Windows.Application.Current.TryFindResource("textInTextBlockStyle") as Style;
+            Style ComboBoxStyle = System.Windows.Application.Current.TryFindResource("ComboBoxStyle") as Style;
+            choose_theme.Style = ComboBoxStyle;
+            theme.Style = textInTextBlockStyle;
+            label.Style = LableStyle;
+            border.Style = BorderMain;
         }
     }
 }

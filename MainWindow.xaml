@@ -412,6 +412,7 @@
 
 
             <Button x:Name ="Completed"
+                    Style="{DynamicResource CompletedStyle}"
                     Grid.Row="2"
                     Height="20" 
                     Width="75"
